@@ -25,7 +25,11 @@
   }
   function setSite(site){
     const clean=normalize(site);
-    localStorage.setItem(KEY,JSON.stringify(clean));
+    try{localStorage.setItem(KEY,JSON.stringify(clean));}
+    catch(e){
+      if(e&&e.name==='QuotaExceededError') throw new Error('พื้นที่เก็บข้อมูลของเบราว์เซอร์เต็มแล้ว กรุณาลดขนาดหรือจำนวนรูปภาพแล้วลองอีกครั้ง');
+      throw new Error('บันทึกข้อมูลไม่สำเร็จ: '+(e.message||e));
+    }
     window.BeeHouseCMS.site=clean;
     window.dispatchEvent(new CustomEvent('beehouse:site-updated',{detail:clean}));
     return clean;
@@ -39,7 +43,7 @@
   function exportFile(name,data){const b=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
   function exportAll(){exportFile('beehouse-backup.json',{version:VERSION,site:window.BeeHouseCMS.site||loadSync(),applications:getApps(),contacts:getContacts()});}
   function reset(){const s=normalize(defaults());localStorage.setItem(KEY,JSON.stringify(s));window.BeeHouseCMS.site=s;window.dispatchEvent(new CustomEvent('beehouse:site-updated',{detail:s}));return s;}
-  async function fileToDataURL(file,max=1600,quality=.78){
+  async function fileToDataURL(file,max=1100,quality=.70){
     if(!file)return '';
     if(!file.type.startsWith('image/'))throw new Error('ไฟล์นี้ไม่ใช่รูปภาพ');
     return new Promise((resolve,reject)=>{const r=new FileReader();r.onerror=()=>reject(r.error);r.onload=()=>{const img=new Image();img.onload=()=>{const scale=Math.min(1,max/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=Math.max(1,Math.round(img.width*scale));c.height=Math.max(1,Math.round(img.height*scale));const ctx=c.getContext('2d');ctx.drawImage(img,0,0,c.width,c.height);resolve(c.toDataURL('image/jpeg',quality));};img.onerror=()=>reject(new Error('อ่านรูปภาพไม่สำเร็จ'));img.src=r.result};r.readAsDataURL(file)});

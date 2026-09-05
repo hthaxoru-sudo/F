@@ -51,3 +51,12 @@
 - Admin dashboard now controls site text, hero, tabs, stats, news, navigation, buttons, feature flags, jobs, portfolio, partners, theme, applications/evaluations, contacts, audit logs, and JSON backup/import.
 - On GitHub Pages, browser storage is local to the Admin device. Use **Export site.json** and replace the repository `site.json` to publish changes to all visitors.
 - Applications submitted from GitHub Pages are also local to the browser. For multi-user shared applications, connect the existing Express API/backend or another database service.
+
+
+## UI / CMS fixes in this build
+- Centralized logo source: the Admin-uploaded `general.logo` is used by public pages, footer, favicon, featured fallback, partner fallback, and Admin branding.
+- Saving CMS data now reports quota/storage errors instead of silently failing.
+- Images are resized before storage to reduce GitHub Pages browser-storage pressure.
+- Portfolio UI is a polished gallery with project navigation, per-project image arrows, image counter, and clickable thumbnails.
+- Admin Portfolio / Partner lists now show thumbnails so it is obvious which image belongs to each item.
+- Cache-busting query versions were updated for the modified JS files.

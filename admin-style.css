@@ -17,3 +17,6 @@
 .upload-preview:has(img){padding:10px}
 .upload-preview img{width:auto;max-width:240px;max-height:180px;object-fit:contain!important;background:#fff;padding:6px}
 @media(max-width:900px){.image-map-grid{grid-template-columns:1fr}}
+
+.collection-item{display:flex;gap:14px;align-items:flex-start}.collection-thumb{width:86px;height:72px;flex:0 0 86px;border-radius:14px;background:#0b0d13;border:1px solid var(--line);display:grid;place-items:center;overflow:hidden}.collection-thumb img{width:100%;height:100%;object-fit:cover}.collection-thumb.shop-thumb{border-radius:16px}.collection-main{min-width:0;flex:1}.collection-mini{display:flex;gap:6px;align-items:center;margin-top:8px}.collection-mini img{width:42px;height:34px;border-radius:7px;object-fit:cover;border:1px solid var(--line)}.collection-mini span{font-size:11px;color:var(--muted)}
+@media(max-width:650px){.collection-item{flex-direction:column}.collection-thumb{width:100%;height:130px}}

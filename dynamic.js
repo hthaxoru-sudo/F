@@ -6,13 +6,13 @@ const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&
 const text=(sel,v)=>{const e=$(sel);if(e&&v!=null)e.textContent=v};
 function site(){return window.BeeHouseCMS?.site||window.BeeHouseDefaultSite||{};}
 function setFavicon(src){if(!src)return;let l=document.querySelector('link[data-beehouse-favicon]');if(!l){l=document.createElement('link');l.rel='icon';l.dataset.beehouseFavicon='1';document.head.appendChild(l)}l.href=src}
-function logoFallback(){return window.BeeHouseLogoFallback||'assets/beehouse-logo.svg'}
+function logoFallback(){try{const v=window.BeeHouseCMS?.site?.general?.logo;if(typeof v==='string'&&v.trim())return v.trim()}catch(_){}return window.BeeHouseLogoFallback||'assets/beehouse-logo.svg'}
 function imageOrFallback(src,fallback){const v=String(src||'').trim();return v||fallback||logoFallback()}
 function bindImageFallbacks(root=document){root.querySelectorAll('img[data-beehouse-fallback], img.brand-logo img, img.featured-image, img.partner-avatar img, img.news-image, img.widget-img, .footer-logo img, .loading-bee img, .banner-icon img, .hero-badge-logo').forEach(img=>{if(img.dataset.fallbackBound)return;img.dataset.fallbackBound='1';img.addEventListener('error',()=>{const fallback=img.dataset.beehouseFallback||logoFallback();if(img.src!==new URL(fallback,document.baseURI).href){img.src=fallback;img.classList.add('image-fallback-used')}})})}
 function safeImage(src,fallback){return imageOrFallback(src,fallback||logoFallback())}
 function applyCommonSite(s){
  const g=s.general||{},c=s.content||{},h=s.hero||{},b=s.buttons||{};
- document.title=g.siteTitle||document.title;setFavicon(g.favicon||g.logo);
+ document.title=g.siteTitle||document.title;setFavicon(g.logo||g.favicon);
  document.documentElement.style.setProperty('--pink-primary',s.theme?.primary||'#ff5e97');
  document.querySelectorAll('.brand-logo').forEach(e=>{e.innerHTML=`<img data-beehouse-logo data-beehouse-fallback="${esc(logoFallback())}" src="${esc(safeImage(g.logo,logoFallback()))}" alt="${esc(g.siteTitle||'BeeHouse')}">`});
  document.querySelectorAll('.footer-logo').forEach(e=>{e.innerHTML=`<img data-beehouse-logo data-beehouse-fallback="${esc(logoFallback())}" src="${esc(safeImage(g.logo,logoFallback()))}" alt="${esc(g.siteTitle||'BeeHouse')}">`});
@@ -31,7 +31,7 @@ function applyCommonSite(s){
  const heroBadge=$('.main-card-glass .badge-pill');if(heroBadge){heroBadge.innerHTML=`<img data-beehouse-logo data-beehouse-fallback="${esc(logoFallback())}" class="hero-badge-logo" src="${esc(safeImage(g.logo,logoFallback()))}" alt="${esc(g.siteTitle||'BeeHouse')}">${esc(h.badge||'')}`;}
  const heroTitle=$('.main-title');if(heroTitle)heroTitle.innerHTML=h.title||heroTitle.innerHTML;
  text('.main-desc',h.description);
- const featuredImg=$('.featured-image');if(featuredImg){featuredImg.dataset.beehouseFallback=logoFallback();featuredImg.src=imageOrFallback(h.featuredImage,g.logo||logoFallback());}text('.featured-info strong',h.featuredTitle);
+ const featuredImg=$('.featured-image');if(featuredImg){featuredImg.dataset.beehouseFallback=safeImage(g.logo,logoFallback());featuredImg.src=imageOrFallback(h.featuredImage,g.logo||logoFallback());}text('.featured-info strong',h.featuredTitle);
  const fp=$('.featured-info p');if(fp)fp.innerHTML=esc(h.featuredDescription||'')+' <span class="dot-status"></span>';
  const ct=c.home||{};
  [['.portfolio-section .badge-pill-soft',ct.portfolioBadge],['.portfolio-section .section-title',ct.portfolioTitle],['.portfolio-section .section-desc',ct.portfolioDescription],['.shop-section .badge-pill-soft',ct.partnerBadge],['.shop-section .section-title',ct.partnerTitle],['.shop-section .section-desc',ct.partnerDescription],['.banner-left strong',ct.bannerTitle],['.banner-left p',ct.bannerDescription]].forEach(([sel,v])=>{const e=$(sel);if(e&&v)e.textContent=v});
@@ -45,36 +45,26 @@ function renderHome(){
  const stats=$('#stats-container');if(stats)stats.innerHTML=(s.stats||[]).map(x=>`<div class="stat-item"><div class="stat-num">${esc(x.num)}</div><div class="stat-label">${esc(x.label)}</div></div>`).join('');
  const partners=$('#partner-container');if(partners)partners.innerHTML=(s.partners||[]).map(p=>`<div class="partner-card"><div class="partner-header"><div class="partner-avatar">${p.logo?`<img data-beehouse-fallback="${logoFallback()}" src="${esc(p.logo)}" alt="${esc(p.name)}">`:`<img data-beehouse-fallback="${logoFallback()}" src="${logoFallback()}" alt="BeeHouse">`}</div><div class="partner-info"><h3>${esc(p.name)}</h3><span class="partner-tag">${esc(p.category)}</span></div></div><p class="partner-desc">${esc(p.desc)}</p><div class="partner-works"><div class="partner-works-title">ตัวอย่างรายการ & ราคาเริ่มต้น</div>${(p.services||[]).map(x=>`<div class="partner-work-item"><span>${esc(x.name)}</span><span class="partner-work-price">${esc(x.price)}</span></div>`).join('')}</div><div class="partner-footer"><a href="${esc(p.url||p.discordUrl||'#')}" target="_blank" rel="noopener noreferrer" class="btn-discord">เข้าสู่ร้านค้า ↗</a></div></div>`).join('');
  function renderPortfolio(s){
-  const pf=$('#portfolio-container');
-  if(!pf)return;
-  const items=s.portfolio||[];
-  if(!items.length){pf.innerHTML=`<div class="empty-state"><p>${esc(s.content?.home?.portfolioEmpty||'ยังไม่มีผลงานในขณะนี้')}</p></div>`;return;}
-  const slides=items.map((x,pi)=>{
-    const imgs=Array.isArray(x.images)&&x.images.length?x.images:(x.image?[x.image]:[]);
-    const arr=imgs.length?imgs:['assets/beehouse-logo.svg'];
-    const imageHtml=arr.map((im,ii)=>`<img data-beehouse-fallback="${logoFallback()}" data-image-index="${ii}" src="${esc(im)}" alt="${esc(x.title)}" style="display:${ii===0?'block':'none'}">`).join('');
-    return `<article class="portfolio-slide" data-project="${pi}" style="display:${pi===0?'block':'none'}"><div class="portfolio-card"><div class="portfolio-media"><button class="portfolio-media-arrow prev" type="button" data-image-dir="-1">‹</button><div class="portfolio-image-viewport"><div class="portfolio-image-track">${imageHtml}</div></div><button class="portfolio-media-arrow next" type="button" data-image-dir="1">›</button><div class="portfolio-image-counter">1 / ${arr.length}</div></div><div class="portfolio-copy"><h3>${esc(x.title)}</h3><p>${esc(x.description)}</p>${x.url?`<a href="${esc(x.url)}" target="_blank" rel="noopener">ดูตัวอย่างเต็ม ↗</a>`:''}</div></div></article>`;
-  }).join('');
-  pf.innerHTML=`<div class="portfolio-slider">${slides}</div>`;
-  const projectSlides=[...pf.querySelectorAll('.portfolio-slide')];
-  let projectIndex=0;
-  const showProject=()=>projectSlides.forEach((el,i)=>el.style.display=i===projectIndex?'block':'none');
-  pf.querySelectorAll('[data-image-dir]').forEach(btn=>btn.addEventListener('click',()=>{
-    const slide=btn.closest('.portfolio-slide');
-    const imgs=[...slide.querySelectorAll('[data-image-index]')];
-    let idx=imgs.findIndex(im=>im.style.display!=='none');
-    if(idx<0)idx=0;
-    idx=(idx+Number(btn.dataset.imageDir)+imgs.length)%imgs.length;
-    imgs.forEach((im,i)=>im.style.display=i===idx?'block':'none');
-    const counter=slide.querySelector('.portfolio-image-counter');
-    if(counter)counter.textContent=`${idx+1} / ${imgs.length}`;
-  }));
-  const prev=$('#btn-prev'),next=$('#btn-next');
-  if(prev)prev.onclick=()=>{projectIndex=(projectIndex-1+projectSlides.length)%projectSlides.length;showProject()};
-  if(next)next.onclick=()=>{projectIndex=(projectIndex+1)%projectSlides.length;showProject()};
-  showProject();
-  bindImageFallbacks(pf); window.BeeHouseFixLogos?.(pf);
- }
+ const pf=$('#portfolio-container');if(!pf)return;
+ const items=s.portfolio||[];
+ if(!items.length){pf.innerHTML=`<div class="empty-state"><p>${esc(s.content?.home?.portfolioEmpty||'ยังไม่มีผลงานในขณะนี้')}</p></div>`;return;}
+ const slides=items.map((x,pi)=>{
+  const imgs=Array.isArray(x.images)&&x.images.length?x.images:(x.image?[x.image]:[]);
+  const arr=imgs.length?imgs:[s.general?.logo||logoFallback()];
+  const imageHtml=arr.map((im,ii)=>`<img data-beehouse-fallback="${esc(s.general?.logo||logoFallback())}" data-image-index="${ii}" src="${esc(im)}" alt="${esc(x.title||'Project')}" style="display:${ii===0?'block':'none'}">`).join('');
+  const thumbs=arr.map((im,ii)=>`<button type="button" class="portfolio-thumb ${ii===0?'active':''}" data-thumb-index="${ii}" aria-label="ดูรูปที่ ${ii+1}"><img src="${esc(im)}" alt=""></button>`).join('');
+  return `<article class="portfolio-slide" data-project="${pi}" style="display:${pi===0?'block':'none'}"><div class="portfolio-card"><div class="portfolio-media"><button class="portfolio-media-arrow prev" type="button" data-image-dir="-1" aria-label="รูปก่อนหน้า">‹</button><div class="portfolio-image-viewport"><div class="portfolio-image-track">${imageHtml}</div><div class="portfolio-image-counter">1 / ${arr.length}</div></div><button class="portfolio-media-arrow next" type="button" data-image-dir="1" aria-label="รูปถัดไป">›</button></div><div class="portfolio-thumbs">${thumbs}</div><div class="portfolio-copy"><span class="portfolio-kicker">PROJECT ${String(pi+1).padStart(2,'0')}</span><h3>${esc(x.title||'Project')}</h3><p>${esc(x.description||'')}</p>${x.url?`<a href="${esc(x.url)}" target="_blank" rel="noopener">ดูรายละเอียดโครงการ ↗</a>`:''}</div></div></article>`;
+ }).join('');
+ pf.innerHTML=`<div class="portfolio-slider">${slides}</div>`;
+ const projectSlides=[...pf.querySelectorAll('.portfolio-slide')];let projectIndex=0;
+ const showProject=()=>projectSlides.forEach((el,i)=>el.style.display=i===projectIndex?'block':'none');
+ projectSlides.forEach(slide=>{
+  const setImage=(idx)=>{const imgs=[...slide.querySelectorAll('[data-image-index]')];if(!imgs.length)return;idx=(idx+imgs.length)%imgs.length;imgs.forEach((im,i)=>im.style.display=i===idx?'block':'none');slide.querySelectorAll('[data-thumb-index]').forEach((b,i)=>b.classList.toggle('active',i===idx));const c=slide.querySelector('.portfolio-image-counter');if(c)c.textContent=`${idx+1} / ${imgs.length}`;};
+  slide.querySelectorAll('[data-image-dir]').forEach(btn=>btn.addEventListener('click',()=>{const imgs=[...slide.querySelectorAll('[data-image-index]')];const cur=imgs.findIndex(im=>im.style.display!=='none');setImage((cur<0?0:cur)+Number(btn.dataset.imageDir));}));
+  slide.querySelectorAll('[data-thumb-index]').forEach(btn=>btn.addEventListener('click',()=>setImage(Number(btn.dataset.thumbIndex))));
+ });
+ const prev=$('#btn-prev'),next=$('#btn-next');if(prev)prev.onclick=()=>{projectIndex=(projectIndex-1+projectSlides.length)%projectSlides.length;showProject()};if(next)next.onclick=()=>{projectIndex=(projectIndex+1)%projectSlides.length;showProject()};showProject();bindImageFallbacks(pf);window.BeeHouseFixLogos?.(pf);
+}
  renderPortfolio(s);
  const f=s.features||{};if(f.preloader===false){$('#loading-screen')?.remove();if($('#app'))$('#app').style.display='block'}
 }
