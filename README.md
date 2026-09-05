@@ -28,3 +28,10 @@
 - staff_bee / StaffPassword123!
 
 **แนะนำให้เปลี่ยนรหัสผ่านทันทีเมื่อนำขึ้นเซิร์ฟเวอร์จริง** และใช้ HTTPS
+
+
+## แก้ไขระบบ Login
+- หน้า `login.html` ใช้ Backend API `/api/auth/login` จริง ไม่ได้ตรวจรหัสผ่านจาก JavaScript ฝั่งผู้ใช้
+- ต้องเปิดเว็บผ่าน `npm start` ที่ `http://localhost:3000` ห้ามดับเบิลคลิกเปิด `login.html` เป็น `file://`
+- บัญชีเริ่มต้น: `admin_beehouse` / `SuperAdminPassword123!`
+- บัญชีทีมงาน: `staff_bee` / `StaffPassword123!`
