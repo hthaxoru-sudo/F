@@ -5,11 +5,7 @@
   const CONTACT='beehouse_contacts_v4';
   const LOG='beehouse_logs_v4';
   const clone=x=>JSON.parse(JSON.stringify(x));
-  async function base(){
-    try{const r=await fetch(new URL('site.json?v=20260905',document.baseURI),{cache:'no-store'}); if(r.ok)return await r.json();}
-    catch(e){}
-    return clone(window.BeeHouseDefaultSite||{});
-  }
+  async function base(){ return clone(window.BeeHouseDefaultSite||{}); }
   async function load(){
     try{const raw=localStorage.getItem(KEY);if(raw)return JSON.parse(raw)}catch(e){}
     return base();

@@ -1,16 +1,13 @@
 /* BeeHouse Dynamic Layer - added without replacing the original UI */
 (function(){
 "use strict";
-const API="/api";
 const $=s=>document.querySelector(s);
 const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
-async function api(url,opt={}){const r=await fetch(API+url,{headers:{"Content-Type":"application/json",...(opt.headers||{})},...opt});let d={};try{d=await r.json()}catch{}if(!r.ok)throw Error(d.error||"เกิดข้อผิดพลาด");return d}
 function text(sel,v){const e=$(sel);if(e&&v!==undefined)e.textContent=v}
 function html(sel,v){const e=$(sel);if(e&&v!==undefined)e.innerHTML=v}
 async function loadSite(){
  try { if(window.BeeHouseCMS) return await window.BeeHouseCMS.get(); } catch(e){}
- try{return await api("/site")}catch{}
- try{const r=await fetch(new URL('site.json?v=20260905',document.baseURI),{cache:'no-store'});if(r.ok)return await r.json()}catch(e){} return window.BeeHouseDefaultSite||null
+ return window.BeeHouseDefaultSite||null;
 }
 
 function setBrandIcon(src, selector){const e=document.querySelector(selector);if(!e)return;if(src&&/^(data:image|https?:|\/|assets\/)/.test(src)){e.innerHTML=`<img src="${esc(src)}" alt="BeeHouse logo">`;e.style.background='transparent'}else e.textContent=src||'B'}
@@ -70,7 +67,7 @@ async function publicStatus(){
  document.addEventListener("submit",async e=>{
   if(e.target!==f)return;e.preventDefault();e.stopImmediatePropagation();
   const xbox=$("#login_xbox").value.trim(),discordId=$("#login_discord_id").value.trim();
-  try{const local=(window.BeeHouseCMS?.getApps?.()||[]).find(x=>String(x.xbox).toLowerCase()===xbox.toLowerCase()&&String(x.discordId)===discordId);if(local){renderStatus({...local,ocName:local.ocNickname,icName:local.icFullname,maxScore:100});return}const u=await api(`/status?xbox=${encodeURIComponent(xbox)}&discordId=${encodeURIComponent(discordId)}`);renderStatus(u)}catch(err){alert("❌ "+err.message)}
+  try{const local=(window.BeeHouseCMS?.getApps?.()||[]).find(x=>String(x.xbox).toLowerCase()===xbox.toLowerCase()&&String(x.discordId)===discordId);if(local){renderStatus({...local,ocName:local.ocNickname,icName:local.icFullname,maxScore:100});return}throw new Error("ไม่พบข้อมูลใบสมัครในระบบนี้")}catch(err){alert("❌ "+err.message)}
  },true);
  function renderStatus(u){$("#login-section").style.display="none";$("#loading-section").style.display="none";const r=$("#result-section");r.style.display="block";const pass=u.status==="pass",fail=u.status==="fail";r.innerHTML=`<div style="padding:20px;border-radius:16px;margin-bottom:20px;text-align:center;background:rgba(255,255,255,.12);border:2px solid ${pass?"#48bb78":fail?"#f56565":"#ecc94b"}">${pass?"🎉 ยินดีด้วย! คุณผ่านการสัมภาษณ์":fail?"💔 เสียใจด้วย คุณยังไม่ผ่านการสัมภาษณ์":"⏳ อยู่ระหว่างรอการสอบสัมภาษณ์"}<p>ผู้สมัคร: <strong>${esc(u.ocName)}</strong> | ตัวละคร: <strong>${esc(u.icName)}</strong></p></div><div class="form-section"><div style="text-align:center"><label>คะแนนรวมที่ได้</label><div style="font-size:3.2rem;font-weight:900">${esc(u.score)} <small>/ ${esc(u.maxScore)}</small></div></div><div class="form-grid"><div class="form-group"><label>Xbox Gamertag</label><input disabled value="${esc(xbox)}"></div><div class="form-group"><label>สายพลัง / อาชีพ</label><input disabled value="${esc(u.job)}"></div><div class="form-group"><label>ผู้ทำการสอบสัมภาษณ์</label><input disabled value="${esc(u.interviewer)}"></div><div class="form-group"><label>วันที่/เวลา สอบ</label><input disabled value="${esc(u.interviewDate)}"></div></div><div class="form-group"><label>ความคิดเห็นและคำแนะนำ</label><textarea rows="4" disabled>${esc(u.remark)}</textarea></div></div><button onclick="location.reload()" class="btn-submit-app">↻ ค้นหาใหม่อีกครั้ง</button>`}
 }
@@ -79,7 +76,7 @@ async function publicNews(){
  const items=s.news||[];const box=$("#news-container");box.innerHTML=items.map(n=>`<article class="news-card">${n.isUrgent?'<div class="priority-badge">🚨 แจ้งเตือนด่วน</div>':""}<div class="news-image-wrapper"><img src="${esc(n.image)}" class="news-image" alt="${esc(n.title)}"></div><div class="news-content"><div class="news-meta"><span class="news-tag">${esc(n.categoryName||n.category||"ข่าวสาร")}</span><span class="news-date">${esc(n.date)}</span></div><h2 class="news-title">${esc(n.title)}</h2><p class="news-excerpt">${esc(n.excerpt||n.content||"")}</p><div class="news-footer"><span>✍️ ${esc(n.author||"Admin")}</span>${n.linkUrl?`<a href="${esc(n.linkUrl)}" target="_blank" class="btn-read-more">อ่านรายละเอียด ↗</a>`:""}</div></div></article>`).join("")}
 async function login(){
  const f=$("#login-form");if(!f)return;
- document.addEventListener("submit",async e=>{if(e.target!==f)return;e.preventDefault();e.stopImmediatePropagation();try{const d=await api("/auth/login",{method:"POST",body:JSON.stringify({username:$("#username").value.trim(),password:$("#password").value})});location.href=d.user.role==="super_admin"?"admin-dashboard.html":"admin-dashboard.html"}catch(err){const a=$("#alert-box");a.textContent=err.message;a.className="alert-box error";a.style.display="block"}},true);
+ f.addEventListener("submit",e=>{ if(typeof handleLogin==="function") return; e.preventDefault(); alert("ระบบเข้าสู่ระบบไม่พร้อมใช้งาน"); });
 }
 document.addEventListener("DOMContentLoaded",()=>{publicHome();publicApply();publicStatus();publicNews();login()}); window.addEventListener('beehouse:site-updated',()=>{publicHome();publicApply();publicStatus();publicNews()}); window.addEventListener('storage',e=>{if(e.key==='beehouse_site_override_v4'){publicHome();publicApply();publicStatus();publicNews()}});
 })();
