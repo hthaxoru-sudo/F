@@ -7,7 +7,11 @@ const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&
 async function api(url,opt={}){const r=await fetch(API+url,{headers:{"Content-Type":"application/json",...(opt.headers||{})},...opt});let d={};try{d=await r.json()}catch{}if(!r.ok)throw Error(d.error||"เกิดข้อผิดพลาด");return d}
 function text(sel,v){const e=$(sel);if(e&&v!==undefined)e.textContent=v}
 function html(sel,v){const e=$(sel);if(e&&v!==undefined)e.innerHTML=v}
-async function loadSite(){try{return await api("/site")}catch{return null}}
+async function loadSite(){
+ try { if(window.BeeHouseCMS) return await window.BeeHouseCMS.get(); } catch(e){}
+ try{return await api("/site")}catch{}
+ try{return await (await fetch("site.json?v=20260905")).json()}catch{return null}
+}
 
 async function publicHome(){
  const s=await loadSite(); if(!s)return;
@@ -39,14 +43,14 @@ async function publicApply(){
  const s=await loadSite();if(!s)return;
  if(s.features?.applicationsOpen===false){const f=$("#rp-apply-form");if(f){f.innerHTML='<div class="form-section"><h3>🚫 ปิดรับสมัครชั่วคราว</h3><p>ขณะนี้ระบบปิดรับสมัคร กรุณาติดตามประกาศจากหน้าเว็บไซต์</p></div>'};return}
  const c=$("#class-options");if(!c)return;
- const apps=await api("/applications").catch(()=>[]);
+ const apps=(window.BeeHouseCMS?.getApps?.()||[]);
  c.innerHTML=(s.jobs||[]).filter(j=>j.enabled!==false).map(j=>{const n=(apps.find(a=>a.job===j.name)?.count)||0;const full=n>=Number(j.max);return `<label class="class-card ${full?"disabled":""}" for="${esc(j.id)}"><input type="radio" id="${esc(j.id)}" name="character_job" value="${esc(j.name)}" ${full?"disabled":""} required><span class="class-title">${esc(j.name)}</span><span class="class-desc">${esc(j.desc)}</span><span class="quota-badge">${full?"🔒 เต็มแล้ว":`👥 เหลือ ${Number(j.max)-n} ที่นั่ง (${n}/${j.max})`}</span></label>`}).join("");
  document.addEventListener("submit",async e=>{
   if(e.target.id!=="rp-apply-form")return;e.preventDefault();e.stopImmediatePropagation();
   const g=id=>document.getElementById(id)?.value?.trim()||"";
   const job=document.querySelector('input[name="character_job"]:checked')?.value||"";
   const body={ocNickname:g("oc_nickname"),ocAge:g("oc_age"),discord:g("oc_discord"),discordId:g("oc_discord_id"),xbox:g("xbox_name"),interviewTime:g("interview_time"),icFullname:g("ic_fullname"),icNickname:g("ic_nickname"),icAge:g("ic_age"),icHistory:g("ic_history"),icPersonality:g("ic_personality"),icPrologue:g("ic_prologue"),job};
-  try{await api("/applications",{method:"POST",body:JSON.stringify(body)});alert("✅ ส่งใบสมัครเรียบร้อยแล้ว ระบบบันทึกเข้าสู่ฐานข้อมูลแล้ว");e.target.reset()}catch(err){alert("❌ "+err.message)}
+  try{const a=window.BeeHouseCMS?.getApps?.()||[];const id="APP-"+Date.now();a.push({...body,id,status:"pending",score:0,maxScore:100,remark:"",submittedAt:new Date().toLocaleString("th-TH")});window.BeeHouseCMS?.saveApps?.(a);window.BeeHouseCMS?.log?.("มีการส่งใบสมัคร "+id);alert("✅ ส่งใบสมัครเรียบร้อยแล้ว");e.target.reset()}catch(err){alert("❌ "+err.message)}
  },true);
 }
 async function publicStatus(){
@@ -54,7 +58,7 @@ async function publicStatus(){
  document.addEventListener("submit",async e=>{
   if(e.target!==f)return;e.preventDefault();e.stopImmediatePropagation();
   const xbox=$("#login_xbox").value.trim(),discordId=$("#login_discord_id").value.trim();
-  try{const u=await api(`/status?xbox=${encodeURIComponent(xbox)}&discordId=${encodeURIComponent(discordId)}`);renderStatus(u)}catch(err){alert("❌ "+err.message)}
+  try{const local=(window.BeeHouseCMS?.getApps?.()||[]).find(x=>String(x.xbox).toLowerCase()===xbox.toLowerCase()&&String(x.discordId)===discordId);if(local){renderStatus({...local,ocName:local.ocNickname,icName:local.icFullname,maxScore:100});return}const u=await api(`/status?xbox=${encodeURIComponent(xbox)}&discordId=${encodeURIComponent(discordId)}`);renderStatus(u)}catch(err){alert("❌ "+err.message)}
  },true);
  function renderStatus(u){$("#login-section").style.display="none";$("#loading-section").style.display="none";const r=$("#result-section");r.style.display="block";const pass=u.status==="pass",fail=u.status==="fail";r.innerHTML=`<div style="padding:20px;border-radius:16px;margin-bottom:20px;text-align:center;background:rgba(255,255,255,.12);border:2px solid ${pass?"#48bb78":fail?"#f56565":"#ecc94b"}">${pass?"🎉 ยินดีด้วย! คุณผ่านการสัมภาษณ์":fail?"💔 เสียใจด้วย คุณยังไม่ผ่านการสัมภาษณ์":"⏳ อยู่ระหว่างรอการสอบสัมภาษณ์"}<p>ผู้สมัคร: <strong>${esc(u.ocName)}</strong> | ตัวละคร: <strong>${esc(u.icName)}</strong></p></div><div class="form-section"><div style="text-align:center"><label>คะแนนรวมที่ได้</label><div style="font-size:3.2rem;font-weight:900">${esc(u.score)} <small>/ ${esc(u.maxScore)}</small></div></div><div class="form-grid"><div class="form-group"><label>Xbox Gamertag</label><input disabled value="${esc(xbox)}"></div><div class="form-group"><label>สายพลัง / อาชีพ</label><input disabled value="${esc(u.job)}"></div><div class="form-group"><label>ผู้ทำการสอบสัมภาษณ์</label><input disabled value="${esc(u.interviewer)}"></div><div class="form-group"><label>วันที่/เวลา สอบ</label><input disabled value="${esc(u.interviewDate)}"></div></div><div class="form-group"><label>ความคิดเห็นและคำแนะนำ</label><textarea rows="4" disabled>${esc(u.remark)}</textarea></div></div><button onclick="location.reload()" class="btn-submit-app">↻ ค้นหาใหม่อีกครั้ง</button>`}
 }

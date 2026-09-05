@@ -135,5 +135,41 @@
   "theme": {
     "primary": "#ff5e97",
     "mainTitle": "ศูนย์รังผึ้งแห่งความคิดสร้างสรรค์"
+  },
+  "news": [],
+  "content": {
+    "home": {
+      "portfolioBadge": "ผลงาน",
+      "portfolioTitle": "โปรเจกต์จากรังของเรา",
+      "portfolioDescription": "รวมผลงานและโปรเจกต์ที่ทีม BeeHouse สร้างสรรค์",
+      "partnerBadge": "PARTNERS",
+      "partnerTitle": "ร้านค้าพาร์ทเนอร์",
+      "partnerDescription": "พาร์ทเนอร์และร้านค้าที่ร่วมงานกับ BeeHouse",
+      "newsTitle": "ข่าวสาร & แจ้งเตือนล่าสุด",
+      "newsViewAll": "ดูข่าวสารทั้งหมด ➔",
+      "bannerTitle": "เปิดรับสมัครแล้ว",
+      "bannerDescription": "กดปุ่มเพื่อไปยังหน้าใบสมัครเข้าร่วมโปรเจกต์นี้",
+      "portfolioEmpty": "ยังไม่มีผลงานในขณะนี้ ผู้ดูแลสามารถเพิ่มผลงานได้ผ่านแผงควบคุม",
+      "footerTitle": "BeeHouse | Official",
+      "footerSlogan": "ค่ายผู้สรรค์สร้างโปรเจกต์และสื่อ"
+    },
+    "news": {
+      "brand": "BeeHouse Official Newsroom",
+      "back": "← กลับหน้าหลัก BeeHouse",
+      "heroTitle": "ศูนย์แจ้งเหตุ & ข่าวสารทางการ",
+      "heroDescription": "เกาะติดข่าวสารอัปเดต Minecraft Bedrock, โฟกัสความปลอดภัย, สรุปประเด็นดราม่า และตรวจสอบรายชื่อแบล็กลิสต์อันตราย",
+      "searchPlaceholder": "🔍 ค้นหาข่าวสาร, ชื่อผู้ใช้อันตราย, หรือหัวข้อ...",
+      "listTitle": "📑 รายการข่าวสารทั้งหมด",
+      "noResults": "ไม่พบข้อมูลข่าวสารหรือรายการแจ้งเหตุที่คุณค้นหา"
+    },
+    "apply": {
+      "title": "ใบสมัคร",
+      "closedTitle": "🚫 ปิดรับสมัครชั่วคราว",
+      "closedText": "ขณะนี้ระบบปิดรับสมัคร กรุณาติดตามประกาศจากหน้าเว็บไซต์"
+    },
+    "status": {
+      "title": "ตรวจสอบผลการสอบ",
+      "notFound": "❌ ไม่พบข้อมูลการสมัคร! กรุณาตรวจสอบ Xbox Gamertag หรือ Discord ID อีกครั้ง"
+    }
   }
 }

@@ -1,210 +1,41 @@
-// js/admin.js
-
-// ข้อมูลเริ่มต้นสำหรับทดสอบระบบใบสมัคร (หากไม่มีใน LocalStorage)
-const initialApplicants = [
-  {
-    xbox: "GamerTag1234",
-    discordId: "123456789012345678",
-    ocName: "นัต",
-    icName: "หมิงเยว่ หลิว",
-    job: "นักรบเวทมนตร์",
-    status: "pass",
-    score: 92,
-    maxScore: 100,
-    interviewer: "Admin_Bee",
-    interviewDate: "05/09/2026 20:00 น.",
-    remark: "ยอดเยี่ยมมาก! ตอบคำถามข้อบังคับเมืองและแสดงบทบาทสมมุติได้อย่างสมบูรณ์แบบ"
-  },
-  {
-    xbox: "PlayerTwo",
-    discordId: "987654321098765432",
-    ocName: "ตั้ม",
-    icName: "อเล็กซ์ คาร์เตอร์",
-    job: "นักแปรธาตุ / หมอยา",
-    status: "fail",
-    score: 45,
-    maxScore: 100,
-    interviewer: "Admin_Moon",
-    interviewDate: "04/09/2026 19:30 น.",
-    remark: "ยังไม่ผ่านเกณฑ์การสอบเนื่องจากจำกฎระเบียบสำคัญบางส่วนไม่ได้"
-  }
-];
-
-// 1. เริ่มต้นการทำงานเมื่อโหลดหน้า
-document.addEventListener('DOMContentLoaded', () => {
-  const user = JSON.parse(sessionStorage.getItem('currentUser'));
-  if (user) {
-    document.getElementById('admin-name').textContent = user.name;
-    document.getElementById('admin-avatar').textContent = user.avatar;
-  }
-
-  // ซิงค์คลังข้อมูลใบสมัครเข้า LocalStorage
-  if (!localStorage.getItem('applicantDatabase')) {
-    localStorage.setItem('applicantDatabase', JSON.stringify(initialApplicants));
-  }
-
-  loadApplicantsTable();
-  loadSystemLogs();
-});
-
-// 2. ระบบสลับ Tab
-function switchTab(tabId) {
-  document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
-  document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
-
-  document.getElementById(tabId).classList.add('active');
-  event.currentTarget.classList.add('active');
-  
-  const titles = {
-    'tab-overview': 'ภาพรวมระบบ (System Overview)',
-    'tab-applications': 'จัดการใบสมัคร & ประเมินผลสอบ (Interview Control)',
-    'tab-content': 'จัดการเนื้อหาหน้าเว็บ (Content Manager)',
-    'tab-features': 'เปิด/ปิด ฟีเจอร์ระบบ (Feature Flags)',
-    'tab-style': 'จัดการธีมและสไตล์ (Theme Settings)',
-    'tab-logs': 'ประวัติกิจกรรมระบบ (System Logs)'
-  };
-  document.getElementById('page-title').textContent = titles[tabId];
-}
-
-// 3. โหลดและ Render ตารางใบสมัคร
-function loadApplicantsTable() {
-  const applicants = JSON.parse(localStorage.getItem('applicantDatabase')) || [];
-  const tableBody = document.getElementById('app-table-body');
-
-  // อัปเดตตัวเลขในหน้า Overview
-  document.getElementById('stat-total-apps').textContent = applicants.length;
-  document.getElementById('stat-pass-apps').textContent = applicants.filter(a => a.status === 'pass').length;
-  document.getElementById('stat-pending-apps').textContent = applicants.filter(a => a.status === 'pending').length;
-
-  if (applicants.length === 0) {
-    tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;">ยังไม่มีรายการใบสมัครในระบบ</td></tr>`;
-    return;
-  }
-
-  tableBody.innerHTML = applicants.map(app => {
-    let statusBadge = '';
-    if (app.status === 'pass') statusBadge = '<span style="color:#10b981; font-weight:700;">ผ่าน</span>';
-    else if (app.status === 'fail') statusBadge = '<span style="color:#ef4444; font-weight:700;">ไม่ผ่าน</span>';
-    else statusBadge = '<span style="color:#f59e0b; font-weight:700;">รอประเมิน</span>';
-
-    return `
-      <tr>
-        <td><strong>${app.xbox}</strong></td>
-        <td>${app.discordId}</td>
-        <td>${app.icName}</td>
-        <td>${statusBadge}</td>
-        <td><strong>${app.score || 0}</strong> / 100</td>
-        <td>
-          <button onclick="openEvaluation('${app.xbox}')" style="background:#ff5e97; color:#fff; border:none; padding:4px 10px; border-radius:6px; cursor:pointer;">
-            📝 ประเมิน
-          </button>
-        </td>
-      </tr>
-    `;
-  }).join('');
-}
-
-// 4. เปิดแบบฟอร์มประเมินคะแนน
-function openEvaluation(xbox) {
-  const applicants = JSON.parse(localStorage.getItem('applicantDatabase')) || [];
-  const app = applicants.find(a => a.xbox === xbox);
-
-  if (!app) return;
-
-  document.getElementById('eval-xbox').value = app.xbox;
-  document.getElementById('eval-title').innerText = `📝 ประเมินผลสัมภาษณ์: ${app.icName} (${app.xbox})`;
-  document.getElementById('eval-status').value = app.status || 'pending';
-  document.getElementById('eval-remark').value = app.remark || '';
-  
-  document.getElementById('evaluation-card').style.display = 'block';
-  document.getElementById('evaluation-card').scrollIntoView({ behavior: 'smooth' });
-}
-
-function calculateTotalScore() {
-  const rp = parseInt(document.getElementById('score-rp').value) || 0;
-  const rules = parseInt(document.getElementById('score-rules').value) || 0;
-  const comm = parseInt(document.getElementById('score-comm').value) || 0;
-  
-  const total = rp + rules + comm;
-  document.getElementById('eval-total-score').value = total;
-}
-
-// 5. บันทึกผลการประเมิน
-function saveEvaluation() {
-  const xbox = document.getElementById('eval-xbox').value;
-  const status = document.getElementById('eval-status').value;
-  const score = parseInt(document.getElementById('eval-total-score').value) || 0;
-  const remark = document.getElementById('eval-remark').value;
-  
-  const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
-
-  let applicants = JSON.parse(localStorage.getItem('applicantDatabase')) || [];
-  const index = applicants.findIndex(a => a.xbox === xbox);
-
-  if (index !== -1) {
-    applicants[index].status = status;
-    applicants[index].score = score;
-    applicants[index].remark = remark;
-    applicants[index].interviewer = currentUser ? currentUser.name : 'Admin';
-    applicants[index].interviewDate = new Date().toLocaleString('th-TH');
-
-    localStorage.setItem('applicantDatabase', JSON.stringify(applicants));
-    addLog(`ประเมินผลสอบผู้สมัคร ${xbox} เป็น status: ${status} (${score} คะแนน)`);
-    
-    alert('✅ บันทึกผลการประเมินเรียบร้อยแล้ว!');
-    closeEvaluation();
-    loadApplicantsTable();
-  }
-}
-
-function closeEvaluation() {
-  document.getElementById('evaluation-card').style.display = 'none';
-}
-
-// 6. ระบบ Feature Toggle & Save to LocalStorage
-function toggleFeature(featureName, isEnabled) {
-  let settings = JSON.parse(localStorage.getItem('siteSettings')) || {};
-  settings[featureName] = isEnabled;
-  localStorage.setItem('siteSettings', JSON.stringify(settings));
-
-  addLog(`เปลี่ยนสถานะฟีเจอร์ ${featureName} เป็น ${isEnabled ? 'เปิด' : 'ปิด'}`);
-}
-
-// 7. ระบบ บันทึก Log ประวัติการทำงาน
-function addLog(action) {
-  const user = JSON.parse(sessionStorage.getItem('currentUser'));
-  let logs = JSON.parse(localStorage.getItem('systemLogs')) || [];
-  
-  const newLog = {
-    time: new Date().toLocaleTimeString('th-TH'),
-    user: user ? user.name : 'Unknown',
-    action: action,
-    status: 'สำเร็จ'
-  };
-
-  logs.unshift(newLog);
-  localStorage.setItem('systemLogs', JSON.stringify(logs));
-  loadSystemLogs();
-}
-
-function loadSystemLogs() {
-  const logsTable = document.getElementById('logs-table-body');
-  let logs = JSON.parse(localStorage.getItem('systemLogs')) || [
-    { time: '10:45:12', user: 'Super Admin', action: 'เข้าสู่ระบบหลังบ้าน', status: 'สำเร็จ' }
-  ];
-
-  logsTable.innerHTML = logs.map(log => `
-    <tr>
-      <td>${log.time}</td>
-      <td>${log.user}</td>
-      <td>${log.action}</td>
-      <td><span style="color: #10b981;">${log.status}</span></td>
-    </tr>
-  `).join('');
-}
-
-// 8. Logout Function
-function logout() {
-  sessionStorage.removeItem('currentUser');
-  window.location.href = 'login.html';
-}
+(function(){
+const $=s=>document.querySelector(s), esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+let site=null, active='overview'; const titles={overview:'ภาพรวมระบบ',content:'ข้อความ & เนื้อหา',news:'จัดการข่าวสาร',navigation:'เมนู & ปุ่ม',features:'เปิด / ปิดระบบ',applications:'ใบสมัคร & ผลสอบ',jobs:'ตำแหน่ง / อาชีพ',portfolio:'ผลงาน / ร้านค้า',theme:'ธีมเว็บไซต์',contacts:'ข้อความติดต่อ',data:'ข้อมูล / สำรอง',logs:'ประวัติการแก้ไข'};
+const getApps=()=>window.BeeHouseCMS.getApps(); const save=()=>{window.BeeHouseCMS.set(site);window.BeeHouseCMS.site=site;window.BeeHouseCMS.log('บันทึกการตั้งค่าเว็บไซต์');toast('บันทึกแล้ว — ใช้ทันทีในเบราว์เซอร์นี้');};
+function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2500)}
+function field(label,key,val,area=false,cls=''){return `<div class="field ${cls}"><label>${esc(label)}</label>${area?`<textarea data-key="${esc(key)}">${esc(val)}</textarea>`:`<input data-key="${esc(key)}" value="${esc(val)}">`}</div>`}
+function setPath(obj,path,val){const a=path.split('.');let x=obj;for(let i=0;i<a.length-1;i++)x=x[a[i]]??=( {} );x[a.at(-1)]=val}
+function getPath(obj,path){return path.split('.').reduce((x,k)=>x?.[k],obj)}
+function render(){ $('#page-title').textContent=titles[active]; const a=$('#app');({overview,content,news,navigation,features,applications,jobs,portfolio,theme,contacts,data,logs}[active]||overview)(a); }
+function overview(a){const apps=getApps();const pass=apps.filter(x=>x.status==='pass').length,pending=apps.filter(x=>x.status==='pending').length; a.innerHTML=`<div class="grid"><div class="stat"><small>ใบสมัครทั้งหมด</small><div class="num">${apps.length}</div></div><div class="stat"><small>ผ่านการประเมิน</small><div class="num" style="color:var(--green)">${pass}</div></div><div class="stat"><small>รอประเมิน / สอบ</small><div class="num" style="color:var(--amber)">${pending}</div></div><div class="stat"><small>ข่าวสาร</small><div class="num">${(site.news||[]).length}</div></div></div><div class="card" style="margin-top:16px"><h3>ศูนย์ควบคุม BeeHouse</h3><p>Admin สามารถแก้ข้อความ เนื้อหา ข่าวสาร เมนู ปุ่ม เปิด/ปิดฟังก์ชัน ตำแหน่งสมัคร ผลงาน ร้านค้า ธีม และผลสอบได้จากเมนูด้านซ้าย</p><div class="notice">โหมด GitHub Pages เป็น Static: การเปลี่ยนแปลงถูกเก็บในเครื่องของ Admin และสามารถ Export เป็น <b>site.json</b> เพื่อแทนไฟล์ใน GitHub ให้ผู้ชมทุกคนเห็นได้</div><button class="primary" onclick="go('content')">เริ่มแก้เว็บไซต์</button></div>`}
+function content(a){const h=site.hero||{},g=site.general||{},c=site.content||{};const fields=[['ชื่อเว็บไซต์','general.siteTitle',g.siteTitle],['คำโปรยเว็บไซต์','general.slogan',g.slogan],['Logo / Emoji','general.logo',g.logo],['เครดิตท้ายเว็บ','general.footerCredits',g.footerCredits],['Copyright','general.copyright',g.copyright],['Hero Badge','hero.badge',h.badge],['Hero Title','hero.title',h.title],['Hero Description','hero.description',h.description],['Featured Title','hero.featuredTitle',h.featuredTitle],['Featured Description','hero.featuredDescription',h.featuredDescription],['หัวข้อผลงาน','content.home.portfolioTitle',c.home?.portfolioTitle],['คำอธิบายผลงาน','content.home.portfolioDescription',c.home?.portfolioDescription],['หัวข้อร้านค้า','content.home.partnerTitle',c.home?.partnerTitle],['คำอธิบายร้านค้า','content.home.partnerDescription',c.home?.partnerDescription],['หัวข้อข่าวหน้าแรก','content.home.newsTitle',c.home?.newsTitle],['ปุ่มดูข่าวทั้งหมด','content.home.newsViewAll',c.home?.newsViewAll],['ข้อความแบนเนอร์','content.home.bannerTitle',c.home?.bannerTitle],['คำอธิบายแบนเนอร์','content.home.bannerDescription',c.home?.bannerDescription],['ข้อความไม่มีผลงาน','content.home.portfolioEmpty',c.home?.portfolioEmpty],['Newsroom Brand','content.news.brand',c.news?.brand],['News Hero Title','content.news.heroTitle',c.news?.heroTitle],['News Hero Description','content.news.heroDescription',c.news?.heroDescription],['ช่องค้นหาข่าว','content.news.searchPlaceholder',c.news?.searchPlaceholder],['หัวข้อรายการข่าว','content.news.listTitle',c.news?.listTitle]];a.innerHTML=`<div class="card"><div class="section-head"><div><h3>✍️ แก้ข้อความเว็บไซต์</h3><p>รวมข้อความหลักที่ผู้เข้าชมเห็นในหน้าเว็บไซต์และศูนย์ข่าว</p></div><button class="small-btn" onclick="downloadHTMLText()">ดาวน์โหลดรายการข้อความ</button></div><div class="form-grid">${fields.map(x=>field(x[0],x[1],x[2]||'',String(x[2]||'').length>100,'full')).join('')}</div><div class="row" style="margin-top:14px"><button class="primary" onclick="saveFields()">💾 บันทึกข้อความ</button></div></div><div class="card"><h3>แท็บหน้าแรก</h3>${(site.tabs||[]).map((x,i)=>`<div class="item"><div class="form-grid">${field('ชื่อแท็บ',`tabs.${i}.title`,x.title)}${field('สถานะ',`tabs.${i}.active`,x.active?'true':'false')} ${field('เนื้อหา',`tabs.${i}.content`,x.content,true,'full')}</div></div>`).join('')}<button class="small-btn" onclick="addTab()">＋ เพิ่มแท็บ</button><button class="primary" onclick="saveFields()">💾 บันทึกแท็บ</button></div><div class="card"><h3>สถิติหน้าแรก</h3>${(site.stats||[]).map((x,i)=>`<div class="item"><div class="form-grid">${field('ตัวเลข',`stats.${i}.num`,x.num)}${field('ป้ายกำกับ',`stats.${i}.label`,x.label)}</div></div>`).join('')}<button class="small-btn" onclick="addStat()">＋ เพิ่มสถิติ</button><button class="primary" onclick="saveFields()">💾 บันทึก</button></div>`}
+function saveFields(){document.querySelectorAll('[data-key]').forEach(el=>{let v=el.value;if(el.dataset.key.includes('.active'))v=v==='true';setPath(site,el.dataset.key,v)});save();render()}
+function addTab(){site.tabs.push({id:'tab-'+Date.now(),title:'แท็บใหม่',content:'เนื้อหาใหม่',active:false});render()};function addStat(){site.stats.push({num:'0',label:'รายการใหม่'});render()}
+function news(a){const arr=site.news||[];a.innerHTML=`<div class="card"><div class="section-head"><div><h3>📰 ข่าวสาร</h3><p>เพิ่ม แก้ไข ลบ ปักหมุดด่วน และจัดหมวดหมู่ข่าวได้ทั้งหมด</p></div><button class="primary" onclick="editNews(-1)">＋ เพิ่มข่าว</button></div>${arr.length?arr.map((n,i)=>`<div class="item"><div class="section-head"><div><div class="item-title">${esc(n.title)}</div><div class="item-sub">${esc(n.categoryName||n.category)} • ${esc(n.date)} ${n.isUrgent?'• 🚨 ด่วน':''}</div></div><div class="row"><button class="small-btn" onclick="editNews(${i})">แก้ไข</button><button class="danger" onclick="delNews(${i})">ลบ</button></div></div></div>`).join(''):'<div class="empty">ยังไม่มีข่าว</div>'}</div>`}
+function editNews(i){const n=i<0?{id:Date.now(),title:'ข่าวใหม่',category:'general',categoryName:'📢 ข่าวสาร',date:new Date().toLocaleDateString('th-TH',{day:'2-digit',month:'short',year:'numeric'}),image:'',isUrgent:false,excerpt:'',author:'BeeHouse Admin',linkUrl:''}:site.news[i];const a=$('#app');a.innerHTML=`<div class="card"><h3>${i<0?'เพิ่มข่าวสาร':'แก้ไขข่าวสาร'}</h3><div class="form-grid">${field('หัวข้อ','n.title',n.title)}${field('หมวดหมู่','n.category',n.category)}${field('ชื่อหมวดหมู่','n.categoryName',n.categoryName)}${field('วันที่','n.date',n.date)}${field('รูปภาพ URL','n.image',n.image,'','full')}${field('ผู้เขียน','n.author',n.author)}${field('ลิงก์รายละเอียด','n.linkUrl',n.linkUrl)}${field('เนื้อหาย่อ','n.excerpt',n.excerpt,true,'full')}</div><div class="toggle"><span>🚨 ข่าวด่วน / ปักหมุดเป็นข่าวล่าสุด</span><input id="news-urgent" type="checkbox" ${n.isUrgent?'checked':''}></div><button class="primary" onclick="saveNews(${i})">💾 บันทึกข่าว</button> <button class="small-btn" onclick="go('news')">ยกเลิก</button></div>`}
+function saveNews(i){const n={};document.querySelectorAll('[data-key^="n."]').forEach(el=>n[el.dataset.key.slice(2)]=el.value);n.isUrgent=$('#news-urgent').checked;if(i<0)site.news=[n,...(site.news||[])];else site.news[i]=n;save();go('news')};function delNews(i){if(confirm('ยืนยันลบข่าวนี้?')){site.news.splice(i,1);save();render()}}
+function navigation(a){a.innerHTML=`<div class="card"><div class="section-head"><div><h3>🧭 เมนูหลัก</h3><p>แก้ชื่อ ลิงก์ และเปิด/ปิดเมนู</p></div></div>${(site.navbar||[]).map((x,i)=>`<div class="item"><div class="form-grid">${field('ชื่อเมนู',`navbar.${i}.label`,x.label)}${field('ลิงก์',`navbar.${i}.link`,x.link)}${field('เปิดใช้งาน',`navbar.${i}.enabled`,x.enabled!==false?'true':'false')}</div></div>`).join('')}<button class="small-btn" onclick="site.navbar.push({label:'เมนูใหม่',link:'#',enabled:true});render()">＋ เพิ่มเมนู</button><hr style="border-color:var(--line);border-width:1px 0 0;margin:18px 0"><h3>🔘 ปุ่มสำคัญ</h3>${Object.entries(site.buttons||{}).map(([k,x])=>`<div class="item"><b>${esc(k)}</b><div class="form-grid" style="margin-top:8px">${field('ข้อความ',`buttons.${k}.text`,x.text)}${field('ลิงก์',`buttons.${k}.url`,x.url)}${field('เปิดใช้งาน',`buttons.${k}.enabled`,x.enabled!==false?'true':'false')}</div></div>`).join('')}<button class="primary" onclick="saveFields()">💾 บันทึกเมนูและปุ่ม</button></div>`}
+function features(a){const f=site.features||{};a.innerHTML=`<div class="card"><h3>⚡ เปิด / ปิดระบบ</h3><p>ปิดฟีเจอร์แล้วผู้เข้าชมจะไม่เห็นหรือไม่สามารถใช้งานส่วนนั้นได้</p>${[['preloader','Preloader / หน้าจอโหลด'],['banner','แบนเนอร์รับสมัคร'],['register','ระบบสมัครสมาชิก'],['applicationsOpen','เปิดรับสมัครใบสมัคร']].map(([k,l])=>`<div class="toggle"><div><b>${l}</b><div class="muted">${k==='applicationsOpen'?'ควบคุมการเปิดรับสมัคร':'ควบคุมการแสดงผลฟีเจอร์'}</div></div><input type="checkbox" data-feature="${k}" ${f[k]!==false?'checked':''}></div>`).join('')}<button class="primary" onclick="saveFeatures()">💾 บันทึกสถานะระบบ</button></div>`}
+function saveFeatures(){document.querySelectorAll('[data-feature]').forEach(x=>site.features[x.dataset.feature]=x.checked);save();render()}
+function applications(a){const apps=getApps();a.innerHTML=`<div class="card"><div class="section-head"><div><h3>📋 จัดการใบสมัคร / ประเมินผลสอบ</h3><p>ตรวจข้อมูลผู้สมัคร ให้คะแนน เปลี่ยนสถานะ และเขียนหมายเหตุ</p></div><div class="row"><input id="app-q" class="search" placeholder="ค้นหา Xbox / Discord / ชื่อ IC" oninput="filterApps()"><button class="small-btn" onclick="exportApps()">Export</button><button class="small-btn" onclick="importApps()">Import</button></div></div><div class="table-wrap"><table class="table"><thead><tr><th>Xbox</th><th>Discord</th><th>IC</th><th>อาชีพ</th><th>สถานะ</th><th>คะแนน</th><th>จัดการ</th></tr></thead><tbody id="apps-body">${appRows(apps)}</tbody></table></div></div>`}
+function appRows(arr){return arr.map(x=>`<tr><td>${esc(x.xbox)}</td><td>${esc(x.discordId)}</td><td>${esc(x.icFullname||x.icNickname||'-')}</td><td>${esc(x.job||'-')}</td><td><span class="badge ${x.status==='pass'?'green':x.status==='fail'?'red':'amber'}">${x.status==='pass'?'ผ่าน':x.status==='fail'?'ไม่ผ่าน':'รอสอบ'}</span></td><td>${esc(x.score||0)}/100</td><td><button class="small-btn" onclick="evalApp('${esc(x.id)}')">ประเมิน</button> <button class="danger" onclick="delApp('${esc(x.id)}')">ลบ</button></td></tr>`).join('')||'<tr><td colspan="7" class="empty">ยังไม่มีใบสมัคร</td></tr>'}
+function filterApps(){const q=$('#app-q').value.toLowerCase();$('#apps-body').innerHTML=appRows(getApps().filter(x=>JSON.stringify(x).toLowerCase().includes(q)))}
+function evalApp(id){const apps=getApps(),x=apps.find(a=>a.id===id);if(!x)return;const b=x.scoreBreakdown||{};$('#app').innerHTML=`<div class="card"><h3>📝 ประเมิน ${esc(x.xbox)}</h3><p>${esc(x.icFullname||'')} • ${esc(x.job||'')}</p><div class="form-grid">${field('Roleplay 0-40','e.rp',b.rp||0)}${field('กฎระเบียบ 0-30','e.rules',b.rules||0)}${field('การสื่อสาร 0-30','e.comm',b.comm||0)}<div class="field"><label>สถานะ</label><select data-key="e.status"><option value="pending" ${x.status==='pending'?'selected':''}>รอสอบ</option><option value="pass" ${x.status==='pass'?'selected':''}>ผ่าน</option><option value="fail" ${x.status==='fail'?'selected':''}>ไม่ผ่าน</option></select></div>${field('ความคิดเห็น','e.remark',x.remark||'',true,'full')}</div><div class="notice">คะแนนรวมจะคำนวณจาก 40 + 30 + 30 = 100</div><button class="primary" onclick="saveEval('${esc(id)}')">💾 บันทึกผล</button> <button class="small-btn" onclick="go('applications')">ยกเลิก</button></div>`}
+function saveEval(id){const apps=getApps(),x=apps.find(a=>a.id===id);const val=k=>Number(document.querySelector(`[data-key="e.${k}"]`)?.value||0);const rp=Math.min(40,Math.max(0,val('rp'))),rules=Math.min(30,Math.max(0,val('rules'))),comm=Math.min(30,Math.max(0,val('comm')));x.score=rp+rules+comm;x.scoreBreakdown={rp,rules,comm};x.status=document.querySelector('[data-key="e.status"]').value;x.remark=document.querySelector('[data-key="e.remark"]').value;x.interviewer=JSON.parse(sessionStorage.getItem('currentUser')||'{}').name||'Super Admin';x.interviewDate=new Date().toLocaleString('th-TH');window.BeeHouseCMS.saveApps(apps);window.BeeHouseCMS.log('ประเมินใบสมัคร '+id);toast('บันทึกผลสอบแล้ว');go('applications')}
+function delApp(id){if(confirm('ยืนยันลบใบสมัครนี้?')){window.BeeHouseCMS.saveApps(getApps().filter(x=>x.id!==id));window.BeeHouseCMS.log('ลบใบสมัคร '+id);render()}}
+function jobs(a){a.innerHTML=`<div class="card"><div class="section-head"><div><h3>🎭 จัดการตำแหน่ง / อาชีพ</h3><p>แก้ชื่อ คำอธิบาย จำนวนรับ และเปิด/ปิดตำแหน่ง</p></div><button class="primary" onclick="addJob()">＋ เพิ่มตำแหน่ง</button></div>${(site.jobs||[]).map((x,i)=>`<div class="item"><div class="form-grid">${field('ชื่อ',`jobs.${i}.name`,x.name)}${field('จำนวนรับสูงสุด',`jobs.${i}.max`,x.max)}${field('คำอธิบาย',`jobs.${i}.desc`,x.desc,true)}${field('เปิดรับ',`jobs.${i}.enabled`,x.enabled!==false?'true':'false')}</div><button class="danger" onclick="site.jobs.splice(${i},1);save();render()">ลบตำแหน่ง</button></div>`).join('')}<button class="primary" onclick="saveFields()">💾 บันทึก</button></div>`}
+function addJob(){site.jobs.push({id:'job-'+Date.now(),name:'ตำแหน่งใหม่',desc:'รายละเอียด',max:1,enabled:true});render()}
+function portfolio(a){const sections=[['portfolio','🖼️ ผลงาน'],['partners','🏪 ร้านค้า / พาร์ทเนอร์']];a.innerHTML=sections.map(([k,t])=>`<div class="card"><div class="section-head"><h3>${t}</h3><button class="small-btn" onclick="addCollection('${k}')">＋ เพิ่ม</button></div>${(site[k]||[]).map((x,i)=>`<div class="item"><div class="section-head"><div><div class="item-title">${esc(x.title||x.name||'รายการ')}</div><div class="item-sub">${esc(x.description||x.desc||x.category||'')}</div></div><div><button class="small-btn" onclick="editCollection('${k}',${i})">แก้ไข</button> <button class="danger" onclick="site['${k}'].splice(${i},1);save();render()">ลบ</button></div></div></div>`).join('')||'<div class="empty">ยังไม่มีข้อมูล</div>'}</div>`).join('')}
+function addCollection(k){site[k].push(k==='portfolio'?{id:Date.now(),title:'ผลงานใหม่',description:'',image:'',url:''}:{id:Date.now(),name:'ร้านค้าใหม่',category:'',icon:'🏪',desc:'',url:'',services:[]});render()}
+function editCollection(k,i){const x=site[k][i];$('#app').innerHTML=`<div class="card"><h3>แก้ไข ${k}</h3><textarea class="jsonbox" id="collection-json">${esc(JSON.stringify(x,null,2))}</textarea><p class="muted">โหมดขั้นสูง: แก้ JSON ของรายการนี้ได้โดยตรง เพื่อรองรับฟิลด์เพิ่มเติม</p><button class="primary" onclick="saveCollection('${k}',${i})">💾 บันทึก</button> <button class="small-btn" onclick="go('portfolio')">ยกเลิก</button></div>`}
+function saveCollection(k,i){try{site[k][i]=JSON.parse($('#collection-json').value);save();go('portfolio')}catch(e){alert('JSON ไม่ถูกต้อง')}}
+function theme(a){const t=site.theme||{};a.innerHTML=`<div class="card"><h3>🎨 ธีมเว็บไซต์</h3><div class="form-grid">${field('สีหลัก','theme.primary',t.primary||'#ff5e97')}${field('ชื่อธีมหลัก','theme.mainTitle',t.mainTitle||'')}</div><button class="primary" onclick="saveFields()">💾 บันทึกธีม</button></div>`}
+function contacts(a){const cs=window.BeeHouseCMS.getContacts();a.innerHTML=`<div class="card"><h3>📨 ข้อความติดต่อ</h3>${cs.map(x=>`<div class="item"><b>${esc(x.subject||x.name||'ข้อความ')}</b><p>${esc(x.message||x.content||'')}</p><small class="muted">${esc(x.email||'')} • ${esc(x.status||'new')}</small></div>`).join('')||'<div class="empty">ยังไม่มีข้อความติดต่อ</div>'}</div>`}
+function data(a){a.innerHTML=`<div class="card"><h3>💾 สำรองและเผยแพร่ข้อมูล</h3><div class="notice">GitHub Pages ไม่มีฐานข้อมูลกลาง การแก้ไขจึงเก็บใน localStorage ของเครื่อง Admin หากต้องการให้ผู้ชมทุกคนเห็น ให้ Export site.json แล้วนำไฟล์นี้ไปแทนใน repository</div><div class="row"><button class="primary" onclick="window.BeeHouseCMS.exportJson()">⬇ Export site.json</button><button class="small-btn" onclick="importSite()">⬆ Import site.json</button><button class="small-btn" onclick="resetSite()">↺ คืนค่าเริ่มต้น</button><button class="small-btn" onclick="exportApps()">⬇ Export ใบสมัคร</button></div><p class="muted">ข่าวสาร เมนู ปุ่ม ข้อความ ธีม ผลงาน และการตั้งค่าทั้งหมดอยู่ใน site.json</p></div>`}
+function logs(a){a.innerHTML=`<div class="card"><h3>📜 Audit Logs</h3><div class="table-wrap"><table class="table"><thead><tr><th>เวลา</th><th>ผู้ใช้</th><th>กิจกรรม</th><th>สถานะ</th></tr></thead><tbody>${window.BeeHouseCMS.getLogs().map(x=>`<tr><td>${esc(x.time)}</td><td>${esc(x.user)}</td><td>${esc(x.action)}</td><td>${esc(x.status)}</td></tr>`).join('')||'<tr><td colspan="4" class="empty">ยังไม่มีประวัติ</td></tr>'}</tbody></table></div></div>`}
+function addJobDummy(){}
+function addCollectionDummy(){}
+window.go=k=>{active=k;document.querySelectorAll('.nav').forEach(x=>x.classList.toggle('active',x.dataset.tab===k));render()};
+window.logout=()=>{sessionStorage.removeItem('currentUser');location.href='login.html'};window.saveFields=saveFields;window.saveFeatures=saveFeatures;window.editNews=editNews;window.saveNews=saveNews;window.delNews=delNews;window.evalApp=evalApp;window.saveEval=saveEval;window.delApp=delApp;window.addJob=addJob;window.addCollection=addCollection;window.editCollection=editCollection;window.saveCollection=saveCollection;window.importSite=()=>{const i=document.createElement('input');i.type='file';i.accept='.json';i.onchange=()=>{const r=new FileReader();r.onload=()=>{try{site=JSON.parse(r.result);save();render()}catch(e){alert('ไฟล์ไม่ถูกต้อง')}};r.readAsText(i.files[0])};i.click()};window.resetSite=async()=>{if(confirm('คืนค่า site.json เริ่มต้น?')){site=await window.BeeHouseCMS.reset();window.BeeHouseCMS.site=site;render()}};window.exportApps=()=>{const b=new Blob([JSON.stringify(getApps(),null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='applications.json';a.click()};window.importApps=()=>{const i=document.createElement('input');i.type='file';i.accept='.json';i.onchange=()=>{const r=new FileReader();r.onload=()=>{try{window.BeeHouseCMS.saveApps(JSON.parse(r.result));render()}catch(e){alert('ไฟล์ใบสมัครไม่ถูกต้อง')}};r.readAsText(i.files[0])};i.click()};window.filterApps=filterApps;window.downloadHTMLText=()=>{const b=new Blob([JSON.stringify(site.content,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='beehouse-text-content.json';a.click()};
+document.addEventListener('DOMContentLoaded',async()=>{await new Promise(r=>{if(window.BeeHouseCMS.site)r();else window.addEventListener('beehouse:ready',r,{once:true})});site=window.BeeHouseCMS.site;$('#admin-name').textContent=JSON.parse(sessionStorage.getItem('currentUser')||'{}').name||'Super Admin';document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>go(b.dataset.tab));$('#save-all').onclick=save;render()});
+})();

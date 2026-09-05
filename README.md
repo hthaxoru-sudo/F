@@ -45,3 +45,9 @@
 หน้า `login.html` จึงไม่โหลด `dynamic.js` เพื่อไม่ให้เกิด 404/405 จาก API และใช้ cache-busting (`?v=20260905`) กับไฟล์ Login
 
 หากต้องการระบบหลังบ้านแบบหลายผู้ใช้, ฐานข้อมูลถาวร, อัปโหลดไฟล์ และการประเมินผลที่ปลอดภัยจริง ควรนำ Backend ไปไว้บนบริการที่รองรับ Server/Functions และเชื่อมฐานข้อมูลภายนอก
+
+
+## BeeHouse Admin CMS (GitHub Pages)
+- Admin dashboard now controls site text, hero, tabs, stats, news, navigation, buttons, feature flags, jobs, portfolio, partners, theme, applications/evaluations, contacts, audit logs, and JSON backup/import.
+- On GitHub Pages, browser storage is local to the Admin device. Use **Export site.json** and replace the repository `site.json` to publish changes to all visitors.
+- Applications submitted from GitHub Pages are also local to the browser. For multi-user shared applications, connect the existing Express API/backend or another database service.

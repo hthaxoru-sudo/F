@@ -35,7 +35,7 @@ document.getElementById('status-login-form').addEventListener('submit', function
   const inputDiscordId = document.getElementById('login_discord_id').value.trim();
 
   // ค้นหาข้อมูลผู้เล่น
-  const user = applicantDatabase.find(item => 
+  const user = (window.BeeHouseCMS?.getApps?.()||applicantDatabase).find(item => 
     item.xbox.toLowerCase() === inputXbox.toLowerCase() && 
     item.discordId === inputDiscordId
   );

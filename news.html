@@ -410,6 +410,11 @@
     ];
 
     let currentCategory = 'all';
+    async function loadAdminNews(){
+      try{ if(window.BeeHouseCMS){ const s=await window.BeeHouseCMS.get(); if(Array.isArray(s.news)) return s.news; } }catch(e){}
+      return newsData;
+    }
+
 
     // ฟังก์ชันเรนเดอร์ "ข่าวสารล่าสุด (Latest News)"
     function renderLatestNews() {
@@ -504,11 +509,9 @@
       renderNews(filtered);
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
-      renderLatestNews();
-      renderNews(newsData);
-    });
+    window.addEventListener('DOMContentLoaded', async () => { const x=await loadAdminNews(); newsData.splice(0,newsData.length,...x); renderLatestNews(); renderNews(newsData); });
   </script>
   <script src="dynamic.js"></script>
+<script src="cms.js"></script>
 </body>
 </html>
