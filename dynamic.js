@@ -10,7 +10,7 @@ function html(sel,v){const e=$(sel);if(e&&v!==undefined)e.innerHTML=v}
 async function loadSite(){
  try { if(window.BeeHouseCMS) return await window.BeeHouseCMS.get(); } catch(e){}
  try{return await api("/site")}catch{}
- try{return await (await fetch("site.json?v=20260905")).json()}catch{return null}
+ try{const r=await fetch(new URL('site.json?v=20260905',document.baseURI),{cache:'no-store'});if(r.ok)return await r.json()}catch(e){} return window.BeeHouseDefaultSite||null
 }
 
 function setBrandIcon(src, selector){const e=document.querySelector(selector);if(!e)return;if(src&&/^(data:image|https?:|\/|assets\/)/.test(src)){e.innerHTML=`<img src="${esc(src)}" alt="BeeHouse logo">`;e.style.background='transparent'}else e.textContent=src||'B'}
@@ -81,5 +81,5 @@ async function login(){
  const f=$("#login-form");if(!f)return;
  document.addEventListener("submit",async e=>{if(e.target!==f)return;e.preventDefault();e.stopImmediatePropagation();try{const d=await api("/auth/login",{method:"POST",body:JSON.stringify({username:$("#username").value.trim(),password:$("#password").value})});location.href=d.user.role==="super_admin"?"admin-dashboard.html":"admin-dashboard.html"}catch(err){const a=$("#alert-box");a.textContent=err.message;a.className="alert-box error";a.style.display="block"}},true);
 }
-document.addEventListener("DOMContentLoaded",()=>{publicHome();publicApply();publicStatus();publicNews();login()});
+document.addEventListener("DOMContentLoaded",()=>{publicHome();publicApply();publicStatus();publicNews();login()}); window.addEventListener('beehouse:site-updated',()=>{publicHome();publicApply();publicStatus();publicNews()}); window.addEventListener('storage',e=>{if(e.key==='beehouse_site_override_v4'){publicHome();publicApply();publicStatus();publicNews()}});
 })();
