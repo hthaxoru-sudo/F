@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BeeHouse Official Style UI</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Loading Overlay Screen -->
+  <div id="loading-screen" class="loading-overlay">
+    <div class="loading-content">
+      <div class="loading-bee">🐝</div>
+      <div class="progress-bar-container">
+        <div id="progress-bar" class="progress-bar-fill"></div>
+      </div>
+      <div id="progress-text" class="progress-text">0%</div>
+    </div>
+  </div>
+
+  <!-- Main Website Container -->
+  <main id="app" style="display: none;">
+
+    <!-- ส่วนที่ 0: NAV BAR -->
+    <header class="navbar-wrapper">
+      <nav class="navbar-glass">
+        <div class="brand">
+          <span class="brand-logo">🐝</span>
+          <div class="brand-title">
+            <strong>BeeHouse</strong> | Official
+            <small>BEEHOUSE OFFICIAL</small>
+          </div>
+        </div>
+        <div class="nav-links" id="nav-links-container"></div>
+        <div class="nav-actions">
+          <a href="apply.html" class="btn btn-dark-gradient">✦ สมัครเข้าร่วมโปรเจกต์ MingYue</a>
+          <a href="login.html" class="btn btn-light-pill-link">เข้าสู่ระบบ</a>
+        </div>
+      </nav>
+    </header>
+
+    <!-- ส่วนที่ 1: MAIN HERO -->
+    <section class="main-card-glass" id="home">
+      <div class="card-left-section">
+        <span class="badge-pill">🐝 ค่ายผู้สร้างสรรค์ไมน์คราฟต์ MINECRAFT ROLEPLAY</span>
+        <h1 class="main-title">ศูนย์รังผึ้งแห่ง<br>ความคิดสร้างสรรค์</h1>
+        <p class="main-desc">
+          BeeHouse คือค่ายที่รวมทีมนักสร้างสรรค์ไว้ในรังเดียวกัน ตั้งแต่ Minecraft Roleplay Art ไปจนถึง Modder และ Website ทุกผลงานผ่านการบ่มเพาะด้วยความใส่ใจในทุกรายละเอียด
+        </p>
+
+        <div class="action-tabs" id="action-tabs-container"></div>
+        <div class="tab-content-panel" id="tab-content-display"></div>
+        <div class="stats-row" id="stats-container"></div>
+      </div>
+
+      <div class="card-right-section">
+        <div class="featured-card">
+          <div class="featured-image-wrapper">
+            <div class="logo-mingyue">MingYue</div>
+          </div>
+          <div class="featured-info">
+            <strong>MingYue</strong>
+            <p>โปรเจกต์คุณภาพที่เราได้รับให้ทำและเปิดให้บริการเร็วๆ นี้ <span class="dot-status"></span></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bottom-banner">
+        <div class="banner-left">
+          <span class="banner-icon">🐝</span>
+          <div>
+            <strong>สมัครเข้าร่วมโปรเจกต์ MingYue</strong>
+            <p>กดปุ่มเพื่อไปยังหน้าใบสมัครเข้าร่วมโปรเจกต์นี้</p>
+          </div>
+        </div>
+        <div class="banner-actions">
+          <button class="btn btn-warning-pill">เปิดรับสมัครแล้ว </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ส่วนที่ 2: PORTFOLIO SHOWCASE -->
+    <section class="portfolio-section" id="portfolio">
+      <div class="section-header">
+        <span class="badge-pill-soft">ผลงาน</span>
+        <h2 class="section-title">โปรเจกต์จากรังของเรา</h2>
+        <p class="section-desc">
+          ชี้เมาส์หรือแตะที่การ์ดกลางเพื่อดูตัวอย่าง แล้วกด "ดูตัวอย่างเต็ม" เพื่อชมคลิปเต็มของโปรเจกต์นั้น
+        </p>
+      </div>
+
+      <div class="carousel-wrapper">
+        <button class="carousel-arrow prev" id="btn-prev" onclick="moveCarousel(-1)">‹</button>
+        <div class="carousel-container" id="portfolio-container">
+          <div class="empty-state" id="portfolio-empty">
+            <p>ยังไม่มีผลงานในขณะนี้ ผู้ดูแลสามารถเพิ่มผลงานได้ผ่านแผงควบคุม</p>
+          </div>
+        </div>
+        <button class="carousel-arrow next" id="btn-next" onclick="moveCarousel(1)">›</button>
+      </div>
+    </section>
+
+    <!-- ส่วนที่ 3: PARTNER STORES (ร้านค้าพาร์ทเนอร์/หุ้นส่วน) -->
+    <section class="shop-section" id="shop">
+      <div class="section-header">
+        <span class="badge-pill-soft">PARTNERS</span>
+        <h2 class="section-title">ร้านค้าพาร์ทเนอร์</h2>
+        <p class="section-desc">
+          รวมร้านค้าคุณภาพในเครือข่าย BeeHouse ชมผลงานและรายละเอียด แล้วกดเพื่อวาร์ปไปยัง Discord ของแต่ละร้านได้ทันที
+        </p>
+      </div>
+
+      <!-- กล่องนี้จะถูก script.js ดึงข้อมูลมาแสดงผลการ์ดร้านค้า -->
+      <div class="partner-grid" id="partner-container"></div>
+    </section>
+
+    <!-- ===================================================
+         ส่วนที่ 4: LATEST NEWS & ANNOUNCEMENT WIDGET (ข่าวสารล่าสุด)
+         ตำแหน่ง: แสดงกรอบข่าวสารเด่นบนหน้าหลัก กดปุ่มเพื่อวาร์ปไป news.html
+         =================================================== -->
+    <section class="home-news-widget" id="news">
+      <div class="widget-header">
+        <div class="widget-title">
+          <span class="pulse-dot"></span>
+          <h3>📢 ข่าวสาร & แจ้งเตือนล่าสุด</h3>
+        </div>
+        <a href="news.html" class="btn-view-all">ดูข่าวสารทั้งหมด ➔</a>
+      </div>
+
+      <div class="widget-card">
+        <div class="widget-img-box">
+          <img src="https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=800&q=80" alt="News Preview" class="widget-img">
+          <span class="widget-tag">🚫 แบล็กลิสต์</span>
+        </div>
+        <div class="widget-info">
+          <span class="widget-date">📅 05 ก.ย. 2026</span>
+          <h4 class="widget-headline">เตือนภัยขั้นสูง! พบผู้ใช้ดิสคอร์ดหลอกขายสคริปต์ Bedrock ปลอม</h4>
+          <p class="widget-desc">ตรวจสอบพบรายชื่อผู้ใช้งาน Discord แอบอ้างนำสคริปต์แจกฟรีมาหลอกขายในราคาแพง โดยโอนเงินแล้วทำการบล็อกหนีทันที...</p>
+          <a href="news.html" class="widget-link">อ่านรายละเอียดในศูนย์ข่าว ↗</a>
+        </div>
+      </div>
+    </section>
+    <!-- Footer / ส่วนเครดิตท้ายเว็บ -->
+<footer class="footer-glass">
+  <!-- แถบบน: โลโก้ + โซเชียล -->
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="footer-logo">B</div>
+      <div class="footer-brand-info">
+        <h3>BeeHouse | Official</h3>
+        <p>ค่ายผู้สรรค์สร้างโปรเจกต์และสื่อ</p>
+      </div>
+    </div>
+    <div class="footer-socials">
+    </div>
+  </div>
+
+  <hr class="footer-divider">
+
+  <!-- แถบล่าง: เครดิตผู้พัฒนา + ลิขสิทธิ์ -->
+  <div class="footer-bottom">
+    <div class="powered-badge">
+      <span class="pink-dot"></span>
+      <span>Powered by <strong>ResRoleHow / BeeHouse</strong></span>
+    </div>
+    <div class="copyright-text">
+      © 2026 BeeHouse | Official V 2.2
+    </div>
+  </div>
+  </footer>
+
+  </main>
+
+  <script src="script.js"></script>
+  <script src="dynamic.js"></script>
+</body>
+</html>

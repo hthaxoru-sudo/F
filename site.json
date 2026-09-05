@@ -1,0 +1,139 @@
+{
+  "general": {
+    "siteTitle": "BeeHouse | Official",
+    "slogan": "ค่ายผู้สรรค์สร้างโปรเจกต์และสื่อ",
+    "logo": "🐝",
+    "favicon": "",
+    "footerCredits": "Powered by ResRoleHow / BeeHouse",
+    "copyright": "© 2026 BeeHouse | Official V 2.2",
+    "serverStatus": "online"
+  },
+  "buttons": {
+    "login": {
+      "text": "เข้าสู่ระบบ",
+      "url": "login.html",
+      "enabled": true
+    },
+    "apply": {
+      "text": "✦ สมัครเข้าร่วมโปรเจกต์ MingYue",
+      "url": "apply.html",
+      "enabled": true
+    },
+    "status": {
+      "text": "ตรวจสอบผลการสอบ",
+      "url": "status.html",
+      "enabled": true
+    },
+    "news": {
+      "text": "ข่าวสาร",
+      "url": "news.html",
+      "enabled": true
+    }
+  },
+  "hero": {
+    "badge": "🐝 ค่ายผู้สร้างสรรค์ไมน์คราฟต์ MINECRAFT ROLEPLAY",
+    "title": "ศูนย์รังผึ้งแห่ง<br>ความคิดสร้างสรรค์",
+    "description": "BeeHouse คือค่ายที่รวมทีมนักสร้างสรรค์ไว้ในรังเดียวกัน ตั้งแต่ Minecraft Roleplay Art ไปจนถึง Modder และ Website ทุกผลงานผ่านการบ่มเพาะด้วยความใส่ใจในทุกรายละเอียด",
+    "featuredTitle": "MingYue",
+    "featuredDescription": "โปรเจกต์คุณภาพที่เราได้รับให้ทำและเปิดให้บริการเร็วๆ นี้"
+  },
+  "navbar": [
+    {
+      "label": "หน้าหลัก",
+      "link": "#home",
+      "enabled": true
+    },
+    {
+      "label": "ผลงาน",
+      "link": "#portfolio",
+      "enabled": true
+    },
+    {
+      "label": "ร้านค้า",
+      "link": "#shop",
+      "enabled": true
+    },
+    {
+      "label": "ข่าวสาร",
+      "link": "news.html",
+      "enabled": true
+    }
+  ],
+  "tabs": [
+    {
+      "id": "tab-1",
+      "title": "ดูผลงานของเรา",
+      "content": "รวบรวมผลงานการออกแบบสถาปัตยกรรม Minecraft และระบบเว็บไซต์ทั้งหมดของ BeeHouse",
+      "active": true
+    },
+    {
+      "id": "tab-2",
+      "title": "ประกาศผลการสมัคร",
+      "content": "ตรวจสอบรายชื่อผู้ผ่านการคัดเลือกเข้าร่วมทีมงานและโปรเจกต์ MingYue รอบล่าสุด",
+      "active": false
+    },
+    {
+      "id": "tab-3",
+      "title": "สมัครเป็น Modder",
+      "content": "เปิดรับสมัครทีมงานตำแหน่ง Modder และ Developer สามารถยื่น Portfolio ได้ทันที",
+      "active": false
+    }
+  ],
+  "stats": [
+    {
+      "num": "0",
+      "label": "โปรเจกต์ที่เผยแพร่"
+    },
+    {
+      "num": "3",
+      "label": "ช่องทางชุมชน"
+    },
+    {
+      "num": "24/7",
+      "label": "ระบบพร้อมดูแล"
+    }
+  ],
+  "partners": [],
+  "products": [],
+  "portfolio": [],
+  "jobs": [
+    {
+      "id": "job_warrior",
+      "name": "นักรบเวทมนตร์",
+      "desc": "เน้นการต่อสู้ระยะประชิดด้วยพลังธาตุ",
+      "max": 5,
+      "enabled": true
+    },
+    {
+      "id": "job_alchemist",
+      "name": "นักแปรธาตุ / หมอยา",
+      "desc": "ปรุงยา คราฟต์ไอเทม และสนับสนุนทีม",
+      "max": 4,
+      "enabled": true
+    },
+    {
+      "id": "job_assassin",
+      "name": "นักฆ่าเงา",
+      "desc": "ความเร็วสูง ใช้พิษและการอำพรางตัว",
+      "max": 3,
+      "enabled": true
+    },
+    {
+      "id": "job_farmer",
+      "name": "กสิกร / ผู้ใช้พฤกษา",
+      "desc": "เชี่ยวชาญการเกษตรและทรัพยากรธรรมชาติ",
+      "max": 6,
+      "enabled": true
+    }
+  ],
+  "features": {
+    "preloader": true,
+    "banner": true,
+    "register": false,
+    "applicationsOpen": true
+  },
+  "theme": {
+    "primary": "#ff5e97",
+    "mainTitle": "ศูนย์รังผึ้งแห่งความคิดสร้างสรรค์"
+  }
+}

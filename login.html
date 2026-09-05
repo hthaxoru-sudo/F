@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>เข้าสู่ระบบ | BeeHouse Official</title>
+  <link rel="stylesheet" href="login-style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <div class="login-container">
+    <div class="login-card-glass">
+      
+      <!-- Card Header -->
+      <div class="login-header">
+        <div class="brand-icon">👑</div>
+        <h2>เข้าสู่ระบบส่วนจัดการ</h2>
+        <p>สำหรับผู้ดูแลระบบและทีมงาน BeeHouse</p>
+      </div>
+
+      <!-- Alert Message Box -->
+      <div id="alert-box" class="alert-box" style="display: none;"></div>
+
+      <!-- Login Form -->
+      <form id="login-form" onsubmit="handleLogin(event)">
+        <div class="input-group">
+          <label for="username">ชื่อผู้ใช้งาน (Username)</label>
+          <input 
+            type="text" 
+            id="username" 
+            placeholder="กรอกชื่อผู้ใช้ เช่น admin_beehouse" 
+            required 
+            autocomplete="off"
+          >
+        </div>
+
+        <div class="input-group">
+          <label for="password">รหัสผ่าน (Password)</label>
+          <input 
+            type="password" 
+            id="password" 
+            placeholder="••••••••••••" 
+            required 
+          >
+        </div>
+
+        <button type="submit" class="btn-login">
+          <span>เข้าสู่ระบบหลังบ้าน</span> →
+        </button>
+      </form>
+
+      <!-- Card Footer -->
+      <div class="login-footer">
+        <a href="index.html" class="back-link">← กลับไปหน้าหลัก</a>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="users.js"></script>
+  <script src="auth.js"></script>
+  <script src="dynamic.js"></script>
+</body>
+</html>

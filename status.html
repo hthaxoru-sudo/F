@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>เข้าสู่ระบบเช็กผลการสอบ - MingYue Roleplay</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/all.min.css">
+  <!-- ไลบรารีสำหรับจุดพลุฉลอง -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+
+  <!-- แถบ Nav Bar นำทาง -->
+  <div class="navbar-wrapper">
+    <div class="navbar-glass">
+      <div class="brand">
+        <div class="brand-title">
+          <strong>MingYue</strong>
+          <small>Roleplay Community</small>
+        </div>
+      </div>
+      <div class="nav-links">
+        <a href="index.html" class="nav-item">
+          <i class="fa-solid fa-house"></i> หน้าหลัก
+        </a>
+        <a href="status.html" class="nav-item active">
+          <i class="fa-solid fa-clipboard-check"></i> ตรวจสอบผลการสมัคร
+        </a>
+        <a href="apply.html" class="nav-item">
+          <i class="fa-solid fa-paper-plane"></i> สมัครสมาชิก
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="apply-container-glass" style="max-width: 540px;">
+    
+    <!-- ฟอร์มสไตล์ Login -->
+    <div id="login-section">
+      <div class="apply-header" style="text-align: center; margin-bottom: 24px;">
+        <div style="width: 70px; height: 70px; background: linear-gradient(135deg, rgba(255,94,151,0.2), rgba(255,154,139,0.3)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto; box-shadow: 0 0 20px rgba(255,94,151,0.3);">
+          <i class="fa-solid fa-gem" style="font-size: 2rem; color: var(--pink-primary);"></i>
+        </div>
+        <h2>ตรวจสอบผลการสอบสัมภาษณ์</h2>
+        <p>กรอกข้อมูลยืนยันตัวตนเพื่อเปิดกล่องลุ้นผลสอบตัวละครของคุณ</p>
+      </div>
+
+      <form id="status-login-form">
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label for="login_xbox"><i class="fa-brands fa-xbox"></i> ชื่อบัญชี Xbox Gamertag <span class="required">*</span></label>
+          <input type="text" id="login_xbox" required placeholder="เช่น GamerTag1234">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 24px;">
+          <label for="login_discord_id"><i class="fa-solid fa-key"></i> Discord User ID <span class="required">*</span></label>
+          <input type="password" id="login_discord_id" required placeholder="เช่น 123456789012345678">
+        </div>
+
+        <button type="submit" class="btn-submit-app">
+          <i class="fa-solid fa-box-open"></i> เข้าสู่ระบบ & ลุ้นผลสอบ
+        </button>
+      </form>
+    </div>
+
+    <!-- ส่วนแสดงการลุ้นผลสอบ (Countdown + Progress Bar แบบช้าๆ นวลๆ) -->
+    <div id="loading-section" style="display: none; text-align: center; padding: 30px 10px;">
+      <div class="spin-loader">
+        <i class="fa-solid fa-hourglass-half fa-spin" style="font-size: 3.5rem; color: var(--pink-primary);"></i>
+      </div>
+      
+      <h2 style="margin-top: 20px; font-size: 1.6rem;" id="loading-text">กำลังเริ่มต้นการค้นหา...</h2>
+      <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px;" id="loading-subtext">โปรดรอสักครู่ ระบบกำลังเข้าสู่คลังข้อมูล</p>
+
+      <!-- แถบดาวน์โหลด Progress Bar -->
+      <div style="width: 100%; background: rgba(0,0,0,0.1); border-radius: 20px; height: 18px; overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,0.2);">
+        <div id="progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #ff5e97, #ff9a8b); border-radius: 20px; transition: width 0.3s ease;"></div>
+      </div>
+      <div style="margin-top: 8px; font-size: 0.85rem; font-weight: 700; color: var(--pink-primary);" id="progress-percent">0%</div>
+    </div>
+
+    <!-- ผลการค้นหาที่จะแสดงหลังลุ้นจบ -->
+    <div id="result-section" style="display: none;">
+      <!-- JavaScript จะทำการแสดงข้อมูลผลการสอบที่นี่ -->
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer-glass">
+    <div class="footer-bottom">
+      <div class="powered-badge">
+        <span class="pink-dot"></span>
+        <span>Powered by <strong>ResRoleHow / BeeHouse</strong></span>
+      </div>
+      <div class="copyright-text">
+        © 2026 BeeHouse | Official V 2.2
+      </div>
+    </div>
+  </footer>
+
+  <script src="status.js"></script>
+  <script src="dynamic.js"></script>
+</body>
+</html>
