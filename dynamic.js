@@ -23,10 +23,10 @@ function applyCommonSite(s){
  document.querySelectorAll('.footer-brand-info p').forEach(e=>e.textContent=c.home?.footerSlogan||g.slogan||e.textContent);
  document.querySelectorAll('.copyright-text').forEach(e=>e.textContent=g.copyright||e.textContent);
  document.querySelectorAll('.powered-badge strong').forEach(e=>e.textContent=g.footerCredits||e.textContent);
- const heroBadge=$('.main-card-glass .badge-pill');if(heroBadge)heroBadge.innerHTML=h.badge||heroBadge.innerHTML;
+ const heroBadge=$('.main-card-glass .badge-pill');if(heroBadge){heroBadge.innerHTML=`<img class="hero-badge-logo" src="${esc(g.logo||'assets/beehouse-logo.svg')}" alt="${esc(g.siteTitle||'BeeHouse')}">${esc(h.badge||'')}`;}
  const heroTitle=$('.main-title');if(heroTitle)heroTitle.innerHTML=h.title||heroTitle.innerHTML;
  text('.main-desc',h.description);
- text('.featured-info strong',h.featuredTitle);
+ const featuredImg=$('.featured-image');if(featuredImg)featuredImg.src=imageOrFallback(h.featuredImage||g.logo);text('.featured-info strong',h.featuredTitle);
  const fp=$('.featured-info p');if(fp)fp.innerHTML=esc(h.featuredDescription||'')+' <span class="dot-status"></span>';
  const ct=c.home||{};
  [['.portfolio-section .badge-pill-soft',ct.portfolioBadge],['.portfolio-section .section-title',ct.portfolioTitle],['.portfolio-section .section-desc',ct.portfolioDescription],['.shop-section .badge-pill-soft',ct.partnerBadge],['.shop-section .section-title',ct.partnerTitle],['.shop-section .section-desc',ct.partnerDescription],['.banner-left strong',ct.bannerTitle],['.banner-left p',ct.bannerDescription]].forEach(([sel,v])=>{const e=$(sel);if(e&&v)e.textContent=v});
@@ -39,7 +39,37 @@ function renderHome(){
  if(tabs){tabs.innerHTML=(s.tabs||[]).map(x=>`<button class="tab-btn ${x.active?'active':''}" data-tab="${esc(x.id)}">${esc(x.title)}</button>`).join('');tabs.onclick=e=>{const b=e.target.closest('[data-tab]');if(!b)return;const t=(s.tabs||[]).find(x=>x.id===b.dataset.tab);if(content&&t)content.innerHTML=`<p>${esc(t.content)}</p>`;tabs.querySelectorAll('.tab-btn').forEach(x=>x.classList.toggle('active',x===b))};const a=(s.tabs||[]).find(x=>x.active)||(s.tabs||[])[0];if(content&&a)content.innerHTML=`<p>${esc(a.content)}</p>`}
  const stats=$('#stats-container');if(stats)stats.innerHTML=(s.stats||[]).map(x=>`<div class="stat-item"><div class="stat-num">${esc(x.num)}</div><div class="stat-label">${esc(x.label)}</div></div>`).join('');
  const partners=$('#partner-container');if(partners)partners.innerHTML=(s.partners||[]).map(p=>`<div class="partner-card"><div class="partner-header"><div class="partner-avatar">${p.logo?`<img src="${esc(p.logo)}" alt="${esc(p.name)}">`:esc(p.icon||'🏪')}</div><div class="partner-info"><h3>${esc(p.name)}</h3><span class="partner-tag">${esc(p.category)}</span></div></div><p class="partner-desc">${esc(p.desc)}</p><div class="partner-works"><div class="partner-works-title">ตัวอย่างรายการ & ราคาเริ่มต้น</div>${(p.services||[]).map(x=>`<div class="partner-work-item"><span>${esc(x.name)}</span><span class="partner-work-price">${esc(x.price)}</span></div>`).join('')}</div><div class="partner-footer"><a href="${esc(p.url||p.discordUrl||'#')}" target="_blank" rel="noopener noreferrer" class="btn-discord">เข้าสู่ร้านค้า ↗</a></div></div>`).join('');
- const pf=$('#portfolio-container');if(pf){const items=s.portfolio||[];pf.innerHTML=items.length?items.map(x=>{const imgs=Array.isArray(x.images)&&x.images.length?x.images:[x.image].filter(Boolean);return `<article class="portfolio-card">${imgs.length>1?`<div class="portfolio-gallery">${imgs.map(im=>`<img src="${esc(im)}" alt="${esc(x.title)}">`).join('')}</div>`:`<img src="${esc(imgs[0]||'assets/beehouse-logo.svg')}" alt="${esc(x.title)}">`}<div><h3>${esc(x.title)}</h3><p>${esc(x.description)}</p>${x.url?`<a href="${esc(x.url)}" target="_blank" rel="noopener">ดูตัวอย่างเต็ม ↗</a>`:''}</div></article>`}).join(''):`<div class="empty-state"><p>${esc(s.content?.home?.portfolioEmpty||'ยังไม่มีผลงานในขณะนี้')}</p></div>`}
+ function renderPortfolio(s){
+  const pf=$('#portfolio-container');
+  if(!pf)return;
+  const items=s.portfolio||[];
+  if(!items.length){pf.innerHTML=`<div class="empty-state"><p>${esc(s.content?.home?.portfolioEmpty||'ยังไม่มีผลงานในขณะนี้')}</p></div>`;return;}
+  const slides=items.map((x,pi)=>{
+    const imgs=Array.isArray(x.images)&&x.images.length?x.images:(x.image?[x.image]:[]);
+    const arr=imgs.length?imgs:['assets/beehouse-logo.svg'];
+    const imageHtml=arr.map((im,ii)=>`<img data-image-index="${ii}" src="${esc(im)}" alt="${esc(x.title)}" style="display:${ii===0?'block':'none'}">`).join('');
+    return `<article class="portfolio-slide" data-project="${pi}" style="display:${pi===0?'block':'none'}"><div class="portfolio-card"><div class="portfolio-media"><button class="portfolio-media-arrow prev" type="button" data-image-dir="-1">‹</button><div class="portfolio-image-viewport"><div class="portfolio-image-track">${imageHtml}</div></div><button class="portfolio-media-arrow next" type="button" data-image-dir="1">›</button><div class="portfolio-image-counter">1 / ${arr.length}</div></div><div class="portfolio-copy"><h3>${esc(x.title)}</h3><p>${esc(x.description)}</p>${x.url?`<a href="${esc(x.url)}" target="_blank" rel="noopener">ดูตัวอย่างเต็ม ↗</a>`:''}</div></div></article>`;
+  }).join('');
+  pf.innerHTML=`<div class="portfolio-slider">${slides}</div>`;
+  const projectSlides=[...pf.querySelectorAll('.portfolio-slide')];
+  let projectIndex=0;
+  const showProject=()=>projectSlides.forEach((el,i)=>el.style.display=i===projectIndex?'block':'none');
+  pf.querySelectorAll('[data-image-dir]').forEach(btn=>btn.addEventListener('click',()=>{
+    const slide=btn.closest('.portfolio-slide');
+    const imgs=[...slide.querySelectorAll('[data-image-index]')];
+    let idx=imgs.findIndex(im=>im.style.display!=='none');
+    if(idx<0)idx=0;
+    idx=(idx+Number(btn.dataset.imageDir)+imgs.length)%imgs.length;
+    imgs.forEach((im,i)=>im.style.display=i===idx?'block':'none');
+    const counter=slide.querySelector('.portfolio-image-counter');
+    if(counter)counter.textContent=`${idx+1} / ${imgs.length}`;
+  }));
+  const prev=$('#btn-prev'),next=$('#btn-next');
+  if(prev)prev.onclick=()=>{projectIndex=(projectIndex-1+projectSlides.length)%projectSlides.length;showProject()};
+  if(next)next.onclick=()=>{projectIndex=(projectIndex+1)%projectSlides.length;showProject()};
+  showProject();
+ }
+ renderPortfolio(s);
  const f=s.features||{};if(f.preloader===false){$('#loading-screen')?.remove();if($('#app'))$('#app').style.display='block'}
 }
 function renderApply(){
