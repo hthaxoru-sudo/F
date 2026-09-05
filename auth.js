@@ -18,7 +18,7 @@ async function handleLogin(event) {
     const response = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'same-origin',
+      credentials: 'include',
       body: JSON.stringify({ username: usernameInput, password: passwordInput })
     });
 
