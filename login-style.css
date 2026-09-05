@@ -145,4 +145,4 @@ body {
 
 .back-link:hover {
   color: var(--text-dark);
-}
+}.brand-icon img{width:56px;height:56px;object-fit:contain}

@@ -2,8 +2,8 @@
   "general": {
     "siteTitle": "BeeHouse | Official",
     "slogan": "ค่ายผู้สรรค์สร้างโปรเจกต์และสื่อ",
-    "logo": "🐝",
-    "favicon": "",
+    "logo": "assets/beehouse-logo.svg",
+    "favicon": "assets/beehouse-logo.svg",
     "footerCredits": "Powered by ResRoleHow / BeeHouse",
     "copyright": "© 2026 BeeHouse | Official V 2.2",
     "serverStatus": "online"
@@ -136,7 +136,56 @@
     "primary": "#ff5e97",
     "mainTitle": "ศูนย์รังผึ้งแห่งความคิดสร้างสรรค์"
   },
-  "news": [],
+  "news": [
+    {
+      "id": 1,
+      "title": "เตือนภัยขั้นสูง! พบผู้ใช้ดิสคอร์ดหลอกขายสคริปต์ Bedrock ปลอม",
+      "category": "blacklist",
+      "categoryName": "🚫 แบล็กลิสต์",
+      "date": "05 ก.ย. 2026",
+      "image": "https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=800&q=80",
+      "isUrgent": true,
+      "excerpt": "ตรวจสอบพบรายชื่อผู้ใช้งาน Discord แอบอ้างนำสคริปต์แจกฟรีมาหลอกขายในราคาแพง โดยโอนเงินแล้วทำการบล็อกหนีทันที ตรวจสอบรายชื่อบัญชีธนาคารและ ID ได้ที่นี่...",
+      "author": "ศูนย์แจ้งเหตุ BeeHouse",
+      "linkUrl": "https://discord.gg/your-blacklist-channel"
+    },
+    {
+      "id": 2,
+      "title": "วิธีตั้งค่าป้องกันบัญชี Discord จากการโดนฉก Token ผ่าน Bot แปลกหน้า",
+      "category": "security",
+      "categoryName": "🛡️ ความปลอดภัย",
+      "date": "04 ก.ย. 2026",
+      "image": "https://images.unsplash.com/photo-1614064641938-3bbee52942c7?auto=format&fit=crop&w=800&q=80",
+      "isUrgent": false,
+      "excerpt": "แนะแนวทางการตั้งค่าการยืนยันตัวตน 2 ปัจจัย (2FA) และข้อควรระวังเมื่อมีคนส่งลิงก์ทดสอบเกมหรือลิงก์ยืนยันตัวตนแปลกหน้า เพื่อป้องกันบัญชีสูญหาย",
+      "author": "ทีมงานความปลอดภัย",
+      "linkUrl": "https://support.discord.com"
+    },
+    {
+      "id": 3,
+      "title": "อัปเดตใหญ่ Minecraft Bedrock Preview Script API v1.14.0",
+      "category": "game",
+      "categoryName": "🎮 อัปเดตเกม",
+      "date": "03 ก.ย. 2026",
+      "image": "https://images.unsplash.com/photo-1627856013091-fed6e4e30025?auto=format&fit=crop&w=800&q=80",
+      "isUrgent": false,
+      "excerpt": "Mojang ปล่อยอัปเดตตัวเลือก Script API ใหม่ เพิ่มฟังก์ชันจัดการ Custom Entity, Item Event และลดอาการกระตุกของเซิร์ฟเวอร์ขนาดใหญ่ได้อย่างมีประสิทธิภาพ",
+      "author": "BeeHouse Modder Team",
+      "linkUrl": "https://feedback.minecraft.net"
+    },
+    {
+      "id": 4,
+      "title": "ความคืบหน้าการพัฒนาระบบเซิร์ฟเวอร์ MingYue Roleplay",
+      "category": "roleplay",
+      "categoryName": "🎭 อัปเดต Roleplay",
+      "date": "01 ก.ย. 2026",
+      "image": "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=800&q=80",
+      "isUrgent": false,
+      "excerpt": "เผยภาพตัวอย่างระบบกระเป๋าเดินทางใหม่และระบบอาชีพภายในโปรเจกต์ MingYue พร้อมประกาศเตรียมเปิดรับทดสอบรอบ Closed Beta เร็วๆ นี้...",
+      "author": "MingYue Dev Team",
+      "linkUrl": "#home"
+    }
+  ],
   "content": {
     "home": {
       "portfolioBadge": "ผลงาน",
