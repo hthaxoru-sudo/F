@@ -38,7 +38,10 @@
 
 ## GitHub Pages
 
-โปรเจกต์นี้สามารถเปิดหน้าเว็บและระบบ Login แบบ Static บน GitHub Pages ได้แล้ว
-โดย Login จะใช้ `sessionStorage` และข้อมูลบัญชีจาก `users.js` เพราะ GitHub Pages ไม่สามารถรัน `server.js` / Express ได้
+โปรเจกต์นี้รองรับหน้าเว็บและ Login แบบ Static บน GitHub Pages
+โดย Login ใช้ `sessionStorage` และข้อมูลบัญชีจาก `users.js` เท่านั้น
+**ห้ามเรียก `/api/auth/login` หรือ `/api/site` บน GitHub Pages** เพราะ GitHub Pages ไม่สามารถรัน `server.js` / Express API ได้
+
+หน้า `login.html` จึงไม่โหลด `dynamic.js` เพื่อไม่ให้เกิด 404/405 จาก API และใช้ cache-busting (`?v=20260905`) กับไฟล์ Login
 
 หากต้องการระบบหลังบ้านแบบหลายผู้ใช้, ฐานข้อมูลถาวร, อัปโหลดไฟล์ และการประเมินผลที่ปลอดภัยจริง ควรนำ Backend ไปไว้บนบริการที่รองรับ Server/Functions และเชื่อมฐานข้อมูลภายนอก

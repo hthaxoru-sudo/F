@@ -1,4 +1,5 @@
 // auth.js - GitHub Pages / Static Hosting compatible login
+// Version: 2026-09-05-static
 // หมายเหตุ: GitHub Pages ไม่มี Backend/Session Server จึงใช้ sessionStorage สำหรับการเข้าสู่ระบบฝั่งหน้าเว็บ
 
 async function handleLogin(event) {
