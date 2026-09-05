@@ -37,8 +37,8 @@
         </div>
         <div class="nav-links" id="nav-links-container"></div>
         <div class="nav-actions">
-          <a href="apply.html" class="btn btn-dark-gradient">✦ สมัครเข้าร่วมโปรเจกต์ MingYue</a>
-          <a href="login.html" class="btn btn-light-pill-link">เข้าสู่ระบบ</a>
+          <a data-cms-button="apply" href="apply.html" class="btn btn-dark-gradient">✦ สมัครเข้าร่วมโปรเจกต์ MingYue</a>
+          <a data-cms-button="login" href="login.html" class="btn btn-light-pill-link">เข้าสู่ระบบ</a>
         </div>
       </nav>
     </header>
@@ -174,12 +174,9 @@
   </footer>
 
   </main>
-
-  <script src="script.js"></script>
-  <script src="dynamic.js"></script>
-<script src="site-default.js"></script><script src="cms.js"></script>
-<script>
-window.addEventListener('beehouse:ready',()=>{const s=window.BeeHouseCMS.site,c=s.content?.home||{};const set=(sel,v,html=false)=>{const e=document.querySelector(sel);if(e&&v!=null)(html?e.innerHTML=e.innerHTML.replace(/[^]*?/,''):e.textContent=v)};document.querySelector('.badge-pill-soft')&&(document.querySelector('.badge-pill-soft').textContent=c.portfolioBadge||'ผลงาน');document.querySelector('.section-title')&&(document.querySelectorAll('.section-title')[0].textContent=c.portfolioTitle||'โปรเจกต์จากรังของเรา');document.querySelectorAll('.section-desc')[0]&&(document.querySelectorAll('.section-desc')[0].textContent=c.portfolioDescription||'');document.querySelectorAll('.section-title')[1]&&(document.querySelectorAll('.section-title')[1].textContent=c.partnerTitle||'ร้านค้าพาร์ทเนอร์');document.querySelectorAll('.section-desc')[1]&&(document.querySelectorAll('.section-desc')[1].textContent=c.partnerDescription||'');});
-</script>
+  <script src="site-default.js?v=20260905"></script>
+  <script src="cms.js?v=20260905"></script>
+  <script src="dynamic.js?v=20260905"></script>
+  <script src="script.js?v=20260905"></script>
 </body>
 </html>

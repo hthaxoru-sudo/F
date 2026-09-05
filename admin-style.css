@@ -3,3 +3,4 @@
 .sidebar .brand-icon img{width:42px;height:42px;object-fit:contain}
 
 .brand-icon img{width:100%;height:100%;object-fit:contain;border-radius:14px}.upload-field input[type=file]{cursor:pointer}.upload-field input[type=file]::file-selector-button{background:linear-gradient(135deg,var(--pink),#a94fff);color:#fff;border:0;border-radius:8px;padding:8px 12px;margin-right:10px;cursor:pointer}
+.upload-preview{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.upload-preview img{width:110px;height:80px;object-fit:cover;border-radius:10px;border:1px solid var(--line)}

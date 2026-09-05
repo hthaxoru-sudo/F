@@ -984,3 +984,4 @@ section {
   .widget-info { padding: 20px; }
   .widget-img-box { height: 180px; }
 }.brand-logo img,.loading-bee img,.banner-icon img,.brand-icon img{width:100%;height:100%;object-fit:contain}.brand-logo,.loading-bee,.banner-icon{display:inline-flex;align-items:center;justify-content:center;overflow:hidden}.brand-logo img{width:42px;height:42px}.loading-bee img{width:64px;height:64px}.banner-icon img{width:34px;height:34px}.brand-icon img{width:44px;height:44px}
+.portfolio-gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:12px}.portfolio-gallery img{width:100%;height:160px;object-fit:cover;border-radius:12px}.partner-avatar img{width:64px;height:64px;object-fit:cover;border-radius:16px;display:block}
