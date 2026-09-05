@@ -35,3 +35,10 @@
 - ต้องเปิดเว็บผ่าน `npm start` ที่ `http://localhost:3000` ห้ามดับเบิลคลิกเปิด `login.html` เป็น `file://`
 - บัญชีเริ่มต้น: `admin_beehouse` / `SuperAdminPassword123!`
 - บัญชีทีมงาน: `staff_bee` / `StaffPassword123!`
+
+## GitHub Pages
+
+โปรเจกต์นี้สามารถเปิดหน้าเว็บและระบบ Login แบบ Static บน GitHub Pages ได้แล้ว
+โดย Login จะใช้ `sessionStorage` และข้อมูลบัญชีจาก `users.js` เพราะ GitHub Pages ไม่สามารถรัน `server.js` / Express ได้
+
+หากต้องการระบบหลังบ้านแบบหลายผู้ใช้, ฐานข้อมูลถาวร, อัปโหลดไฟล์ และการประเมินผลที่ปลอดภัยจริง ควรนำ Backend ไปไว้บนบริการที่รองรับ Server/Functions และเชื่อมฐานข้อมูลภายนอก

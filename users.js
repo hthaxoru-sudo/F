@@ -24,3 +24,5 @@ const USERS_DATABASE = [
     avatar: '🐝'
   }
 ];
+// ทำให้ auth.js เรียกใช้ได้เมื่อเว็บรันบน GitHub Pages
+window.USERS_DATABASE = USERS_DATABASE;

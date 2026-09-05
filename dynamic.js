@@ -62,7 +62,8 @@ async function publicNews(){
  if(!$("#news-container"))return;const s=await loadSite();if(!s?.news)return;
  const items=s.news||[];const box=$("#news-container");box.innerHTML=items.map(n=>`<article class="news-card">${n.isUrgent?'<div class="priority-badge">🚨 แจ้งเตือนด่วน</div>':""}<div class="news-image-wrapper"><img src="${esc(n.image)}" class="news-image" alt="${esc(n.title)}"></div><div class="news-content"><div class="news-meta"><span class="news-tag">${esc(n.categoryName||n.category||"ข่าวสาร")}</span><span class="news-date">${esc(n.date)}</span></div><h2 class="news-title">${esc(n.title)}</h2><p class="news-excerpt">${esc(n.excerpt||n.content||"")}</p><div class="news-footer"><span>✍️ ${esc(n.author||"Admin")}</span>${n.linkUrl?`<a href="${esc(n.linkUrl)}" target="_blank" class="btn-read-more">อ่านรายละเอียด ↗</a>`:""}</div></div></article>`).join("")}
 async function login(){
- // Login is handled by auth.js. Do not register a second submit listener here.
+ const f=$("#login-form");if(!f)return;
+ document.addEventListener("submit",async e=>{if(e.target!==f)return;e.preventDefault();e.stopImmediatePropagation();try{const d=await api("/auth/login",{method:"POST",body:JSON.stringify({username:$("#username").value.trim(),password:$("#password").value})});location.href=d.user.role==="super_admin"?"admin-dashboard.html":"admin-dashboard.html"}catch(err){const a=$("#alert-box");a.textContent=err.message;a.className="alert-box error";a.style.display="block"}},true);
 }
 document.addEventListener("DOMContentLoaded",()=>{publicHome();publicApply();publicStatus();publicNews();login()});
 })();

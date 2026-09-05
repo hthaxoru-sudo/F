@@ -1,4 +1,5 @@
-// js/auth.js - ระบบเข้าสู่ระบบจริงผ่าน Backend API
+// auth.js - GitHub Pages / Static Hosting compatible login
+// หมายเหตุ: GitHub Pages ไม่มี Backend/Session Server จึงใช้ sessionStorage สำหรับการเข้าสู่ระบบฝั่งหน้าเว็บ
 
 async function handleLogin(event) {
   event.preventDefault();
@@ -15,31 +16,37 @@ async function handleLogin(event) {
       button.style.opacity = '0.7';
     }
 
-    const response = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ username: usernameInput, password: passwordInput })
-    });
+    // GitHub Pages เป็น Static Hosting จึงไม่สามารถเรียก /api/auth/login ของ Express ได้
+    // ตรวจสอบบัญชีจาก users.js ที่ถูกโหลดมาก่อน auth.js
+    const users = Array.isArray(window.USERS_DATABASE)
+      ? window.USERS_DATABASE
+      : (typeof USERS_DATABASE !== 'undefined' ? USERS_DATABASE : []);
 
-    const data = await response.json().catch(() => ({}));
+    const user = users.find(u =>
+      String(u.username) === usernameInput &&
+      String(u.password) === passwordInput
+    );
 
-    if (!response.ok) {
-      throw new Error(data.error || 'เข้าสู่ระบบไม่สำเร็จ');
+    if (!user) {
+      throw new Error('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
     }
 
-    // เก็บข้อมูลผู้ใช้ไว้สำหรับ UI เดิมของหน้า Admin
-    sessionStorage.setItem('currentUser', JSON.stringify(data.user));
+    const safeUser = {
+      id: user.id || user.username,
+      username: user.username,
+      role: user.role,
+      name: user.name,
+      avatar: user.avatar
+    };
 
+    sessionStorage.setItem('currentUser', JSON.stringify(safeUser));
     showAlert('เข้าสู่ระบบสำเร็จ! กำลังนำคุณไปหน้าหลังบ้าน...', 'success');
 
     setTimeout(() => {
-      window.location.href = data.user?.role === 'super_admin'
-        ? 'admin-dashboard.html'
-        : 'admin-dashboard.html';
-    }, 500);
+      window.location.href = 'admin-dashboard.html';
+    }, 400);
   } catch (error) {
-    showAlert(error.message || 'ไม่สามารถเชื่อมต่อระบบเข้าสู่ระบบได้', 'error');
+    showAlert(error.message || 'เข้าสู่ระบบไม่สำเร็จ', 'error');
     if (button) {
       button.disabled = false;
       button.style.opacity = '';
