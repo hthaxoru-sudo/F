@@ -48,8 +48,49 @@ function saveFeatures(){site.features=site.features||{};document.querySelectorAl
 function applications(a){const apps=cms().getApps();a.innerHTML=`<div class="card"><div class="section-head"><div><h3>📋 ใบสมัคร & ผลสอบ</h3><p>ใบสมัครที่ส่งจากหน้าเว็บไซต์จะเข้าที่นี่ทันทีในเบราว์เซอร์เดียวกัน</p></div><div class="row"><input id="app-q" class="search" placeholder="ค้นหา..." oninput="filterApps()"><button class="small-btn" onclick="exportApps()">Export</button><button class="small-btn" onclick="importApps()">Import</button></div></div><div class="table-wrap"><table class="table"><thead><tr><th>Xbox</th><th>Discord</th><th>IC</th><th>อาชีพ</th><th>สถานะ</th><th>คะแนน</th><th>จัดการ</th></tr></thead><tbody id="apps-body">${appRows(apps)}</tbody></table></div></div>`}
 function appRows(arr){return arr.map(x=>`<tr><td>${esc(x.xbox)}</td><td>${esc(x.discordId)}</td><td>${esc(x.icFullname||x.icNickname||'-')}</td><td>${esc(x.job||'-')}</td><td>${esc(x.status||'pending')}</td><td>${esc(x.score||0)}/100</td><td><button class="small-btn" onclick="evalApp('${esc(x.id)}')">ประเมิน</button> <button class="danger" onclick="delApp('${esc(x.id)}')">ลบ</button></td></tr>`).join('')||'<tr><td colspan="7" class="empty">ยังไม่มีใบสมัคร</td></tr>'}
 function filterApps(){const q=($('#app-q')?.value||'').toLowerCase();$('#apps-body').innerHTML=appRows(cms().getApps().filter(x=>JSON.stringify(x).toLowerCase().includes(q)))}
-function evalApp(id){const x=cms().getApps().find(a=>a.id===id);if(!x)return;const b=x.scoreBreakdown||{};$('#app').innerHTML=`<div class="card"><h3>📝 ประเมิน ${esc(x.xbox)}</h3><p>${esc(x.icFullname||'')} • ${esc(x.job||'')}</p><div class="form-grid">${field('Roleplay 0-40','e.rp',b.rp||0)}${field('กฎระเบียบ 0-30','e.rules',b.rules||0)}${field('การสื่อสาร 0-30','e.comm',b.comm||0)}<div class="field"><label>สถานะ</label><select data-key="e.status"><option value="pending" ${x.status==='pending'?'selected':''}>รอสอบ</option><option value="pass" ${x.status==='pass'?'selected':''}>ผ่าน</option><option value="fail" ${x.status==='fail'?'selected':''}>ไม่ผ่าน</option></select></div>${field('ความคิดเห็น','e.remark',x.remark||'',true,'full')}</div><div class="notice">คะแนนรวม 100 คะแนน</div><button class="primary" onclick="saveEval('${esc(id)}')">💾 บันทึกผล</button> <button class="small-btn" onclick="go('applications')">ยกเลิก</button></div>`}
-function saveEval(id){const a=cms().getApps(),x=a.find(v=>v.id===id);if(!x)return;const num=k=>Math.max(0,Number($(`[data-key="e.${k}"]`)?.value||0));const rp=Math.min(40,num('rp')),rules=Math.min(30,num('rules')),comm=Math.min(30,num('comm'));x.score=rp+rules+comm;x.scoreBreakdown={rp,rules,comm};x.status=$('[data-key="e.status"]').value;x.remark=$('[data-key="e.remark"]').value;x.interviewer=JSON.parse(sessionStorage.getItem('currentUser')||'{}').name||'Admin';x.interviewDate=new Date().toLocaleString('th-TH');cms().saveApps(a);cms().log('ประเมินใบสมัคร '+id);toast('✓ บันทึกผลสอบแล้ว');go('applications')}
+function appValue(v){
+  if(v===null||v===undefined||v==='') return '-';
+  if(typeof v==='object'){
+    try{return '<pre class="app-json">'+esc(JSON.stringify(v,null,2))+'</pre>'}catch{return esc(String(v))}
+  }
+  return esc(String(v)).replace(/\n/g,'<br>');
+}
+function appLabel(k){
+  const labels={id:'รหัสใบสมัคร',ocNickname:'ชื่อเล่นผู้สมัคร',ocAge:'อายุผู้สมัคร',discord:'Discord',discordId:'Discord User ID',xbox:'Xbox Gamertag',interviewTime:'ช่วงเวลาที่สะดวกสอบสัมภาษณ์',icFullname:'ชื่อ-นามสกุลตัวละคร',icNickname:'ชื่อเล่นตัวละคร',icAge:'อายุตัวละคร (IC)',icHistory:'ประวัติตัวละคร',icPersonality:'นิสัยและบุคลิกตัวละคร',icPrologue:'ปฐมบท / บทเกริ่นนำ',job:'สายพลัง / อาชีพ',status:'สถานะ',score:'คะแนนรวม',maxScore:'คะแนนเต็ม',scoreBreakdown:'รายละเอียดคะแนน',remark:'ความคิดเห็น / หมายเหตุ',interviewer:'ผู้ประเมิน',interviewDate:'วันที่ประเมิน',submittedAt:'วันที่ส่งใบสมัคร'};
+  return labels[k]||k;
+}
+function renderAllApplicationData(x){
+  const priority=['ocNickname','ocAge','discord','discordId','xbox','interviewTime','icFullname','icNickname','icAge','icHistory','icPersonality','icPrologue','job'];
+  const keys=[...priority,...Object.keys(x).filter(k=>!priority.includes(k))];
+  return `<div class="app-data-card"><div class="section-head"><div><h3>📄 ข้อมูลใบสมัครทั้งหมด</h3><p>ข้อมูลทุกช่องที่ผู้สมัครส่งเข้าระบบจะแสดงตรงนี้ รวมถึงช่องที่เพิ่มเข้ามาภายหลัง</p></div><span class="data-count">${keys.length} รายการ</span></div><div class="app-data-grid">${keys.map(k=>`<div class="app-data-item ${['icHistory','icPersonality','icPrologue','remark','scoreBreakdown'].includes(k)?'wide':''}"><div class="app-data-label">${esc(appLabel(k))}</div><div class="app-data-value">${appValue(x[k])}</div></div>`).join('')}</div></div>`;
+}
+function evalApp(id){
+  const x=cms().getApps().find(a=>a.id===id);if(!x)return;
+  const b=x.scoreBreakdown||{};
+  $('#app').innerHTML=`<div class="card eval-card"><div class="section-head"><div><div class="eyebrow">APPLICATION REVIEW</div><h3>📝 ประเมิน ${esc(x.xbox||x.ocNickname||x.id)}</h3><p>${esc(x.icFullname||'-')} • ${esc(x.job||'-')}</p></div><button class="small-btn" onclick="go('applications')">← กลับรายการ</button></div>
+  ${renderAllApplicationData(x)}
+  <div class="eval-section"><h3>🎯 ประเมินคะแนน</h3><p>คะแนนรวมยังคง 100 คะแนน แบ่งเป็น Roleplay 40 + กฎระเบียบ 30 + การสื่อสาร 30</p><div class="form-grid">
+  ${field('Roleplay 0-40','e.rp',b.rp||0)}${field('กฎระเบียบ 0-30','e.rules',b.rules||0)}${field('การสื่อสาร 0-30','e.comm',b.comm||0)}
+  <div class="field"><label>สถานะ</label><select data-key="e.status"><option value="pending" ${x.status==='pending'?'selected':''}>รอสอบ</option><option value="pass" ${x.status==='pass'?'selected':''}>ผ่าน</option><option value="fail" ${x.status==='fail'?'selected':''}>ไม่ผ่าน</option></select></div>
+  ${field('ความคิดเห็น / รีวิวภาพรวม','e.remark',x.remark||'',true,'full')}
+  </div><div class="score-preview"><strong>คะแนนรวม</strong><span id="live-score">${Number(b.rp||0)+Number(b.rules||0)+Number(b.comm||0)}/100</span></div>
+  <div class="review-grid"><div class="review-box"><b>รีวิว Roleplay</b>${field('จุดเด่น / จุดที่ควรปรับปรุง','e.reviewRp',b.reviewRp||'',true)}</div><div class="review-box"><b>รีวิวกฎระเบียบ</b>${field('จุดเด่น / จุดที่ควรปรับปรุง','e.reviewRules',b.reviewRules||'',true)}</div><div class="review-box"><b>รีวิวการสื่อสาร</b>${field('จุดเด่น / จุดที่ควรปรับปรุง','e.reviewComm',b.reviewComm||'',true)}</div></div>
+  <div class="eval-actions"><button class="primary" onclick="saveEval('${esc(id)}')">💾 บันทึกผลสอบ</button><button class="small-btn" onclick="go('applications')">ยกเลิก</button></div></div></div>`;
+  ['rp','rules','comm'].forEach(k=>{const el=$(`[data-key="e.${k}"]`);if(el)el.addEventListener('input',()=>{const total=['rp','rules','comm'].reduce((n,z)=>n+Math.min(z==='rp'?40:30,Math.max(0,Number($(`[data-key="e.${z}"]`)?.value||0))),0);const out=$('#live-score');if(out)out.textContent=total+'/100'})});
+}
+function saveEval(id){
+  const a=cms().getApps(),x=a.find(v=>v.id===id);if(!x)return;
+  const num=k=>Math.max(0,Number($(`[data-key="e.${k}"]`)?.value||0));
+  const rp=Math.min(40,num('rp')),rules=Math.min(30,num('rules')),comm=Math.min(30,num('comm'));
+  x.score=rp+rules+comm;
+  const old=x.scoreBreakdown||{};
+  x.scoreBreakdown={rp,rules,comm,reviewRp:$('[data-key="e.reviewRp"]')?.value||old.reviewRp||'',reviewRules:$('[data-key="e.reviewRules"]')?.value||old.reviewRules||'',reviewComm:$('[data-key="e.reviewComm"]')?.value||old.reviewComm||''};
+  x.status=$('[data-key="e.status"]').value;
+  x.remark=$('[data-key="e.remark"]').value;
+  x.interviewer=JSON.parse(sessionStorage.getItem('currentUser')||'{}').name||'Admin';
+  x.interviewDate=new Date().toLocaleString('th-TH');
+  cms().saveApps(a);cms().log('ประเมินใบสมัคร '+id);toast('✓ บันทึกผลสอบแล้ว');go('applications')
+}
 function delApp(id){if(confirm('ยืนยันลบใบสมัคร?')){cms().saveApps(cms().getApps().filter(x=>x.id!==id));cms().log('ลบใบสมัคร '+id);render()}}
 function jobs(a){a.innerHTML=`<div class="card"><div class="section-head"><h3>🎭 ตำแหน่ง / อาชีพ</h3><button class="primary" onclick="addJob()">＋ เพิ่มตำแหน่ง</button></div>${(site.jobs||[]).map((x,i)=>`<div class="item"><div class="form-grid">${field('ชื่อ',`jobs.${i}.name`,x.name)}${field('จำนวนรับ',`jobs.${i}.max`,x.max)}${field('คำอธิบาย',`jobs.${i}.desc`,x.desc,true)}${field('เปิดรับ','jobs.'+i+'.enabled',x.enabled!==false?'true':'false')}</div><button class="danger" onclick="deleteJob(${i})">ลบตำแหน่ง</button></div>`).join('')}<button class="primary" onclick="saveFields()">💾 บันทึก</button></div>`}
 function addJob(){site.jobs.push({id:'job-'+Date.now(),name:'ตำแหน่งใหม่',desc:'รายละเอียดตำแหน่ง',max:1,enabled:true});save('เพิ่มตำแหน่ง');render()}
