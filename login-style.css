@@ -146,12 +146,3 @@ body {
 .back-link:hover {
   color: var(--text-dark);
 }.brand-icon img{width:56px;height:56px;object-fit:contain}
-
-/* BEEHOUSE OFFICIAL LOGIN UI v3 — visual-only refinement */
-:root{--bg:#f4f6f9;--glass-bg:#fff;--glass-border:#e1e7ef;--pink-primary:#14213d;--pink-hover:#0e1a30;--text-dark:#172033;--text-muted:#6b7587;--radius-card:22px}
-body{background:radial-gradient(circle at 20% 0,rgba(201,149,50,.1),transparent 30%),radial-gradient(circle at 90% 10%,rgba(185,106,131,.08),transparent 28%),linear-gradient(180deg,#f8fafc,#eef2f7);color:var(--text-dark)}
-.login-container{max-width:470px}.login-card-glass{background:rgba(255,255,255,.96);border:1px solid var(--glass-border);border-radius:22px;padding:42px;box-shadow:0 28px 70px rgba(20,33,61,.11);backdrop-filter:blur(16px)}
-.brand-icon{width:78px;height:78px;margin:0 auto 14px!important;border-radius:20px!important;background:#f7f9fc;border:1px solid #e1e7ef;display:grid;place-items:center;box-shadow:0 12px 28px rgba(20,33,61,.08)}.brand-icon img{width:58px;height:58px}
-.login-header h2{color:#14213d;font-size:1.7rem}.login-header p{color:#727d8e}.input-group label{color:#344054;font-weight:600}.input-group input{background:#fff;border:1px solid #d9e1eb;border-radius:10px;color:#172033;min-height:48px;box-shadow:0 1px 2px rgba(16,24,40,.03)}.input-group input:focus{border-color:#8e9db2;background:#fff;box-shadow:0 0 0 4px rgba(20,33,61,.07)}
-.btn-login{background:linear-gradient(135deg,#14213d,#2a416d);border-radius:11px;box-shadow:0 10px 24px rgba(20,33,61,.17)}.btn-login:hover{background:linear-gradient(135deg,#0e1a30,#22375d);transform:translateY(-1px);box-shadow:0 13px 28px rgba(20,33,61,.2)}.alert-box.error{background:#fef3f2;color:#b42318;border-color:#fecdca}.alert-box.success{background:#ecfdf3;color:#067647;border-color:#abefc6}.back-link{color:#667085}.back-link:hover{color:#14213d}
-@media(max-width:520px){body{padding:14px}.login-card-glass{padding:30px 20px}}
