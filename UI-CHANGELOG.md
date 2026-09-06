@@ -1,11 +1,12 @@
-# BeeHouse V6 — Stable GitHub Pages UI
+# BeeHouse UI Refresh v5
 
-- Rebased on the original working source instead of V5.
-- Kept public JS/CMS files unchanged.
-- Reworked Admin application table and detail view.
-- Detail view enumerates every field/property present in an application.
-- Added per-category score reviews while keeping 40+30+30=100.
-- Added live total while editing.
-- Made action buttons explicit and high-contrast.
-- Added native color picker + preset colors for Admin theme.
-- Intended for static GitHub Pages deployment; no server/backend added.
+ปรับเฉพาะฝั่ง Admin UI สำหรับ GitHub Pages โดยไม่เปลี่ยนไฟล์ logic/public flow อื่น
+
+## แก้ไข
+- ปุ่มจัดการใบสมัครและปุ่มบันทึกให้มีสี/ข้อความชัดเจน ไม่กลืนกับพื้นหลัง
+- หน้า Review ใบสมัครแสดงข้อมูลทุก property ที่มีอยู่จริงใน application object แบบอัตโนมัติ
+- รองรับข้อมูล field ใหม่ในอนาคตโดยไม่ต้องเพิ่มชื่อ field ในหน้า Admin ทุกครั้ง
+- จัดกลุ่มข้อมูลยาว เช่น ประวัติ บุคลิก ปฐมบท และรีวิว ให้กินพื้นที่เต็มความกว้าง
+- แสดงจำนวนรายการข้อมูลที่พบในใบสมัคร
+- คงระบบให้คะแนน Roleplay 40 + กฎระเบียบ 30 + การสื่อสาร 30 = 100 คะแนน
+- คง GitHub Pages/localStorage architecture เดิม
