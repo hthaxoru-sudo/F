@@ -6,7 +6,7 @@ async function handleLogin(event){
   const box=document.getElementById('alert-box');
   const show=(m,bad=true)=>{box.textContent=m;box.style.display='block';box.className='alert-box '+(bad?'error':'success')};
   try{
-    const r=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,password})});
+    const r=await BeeHouseAPI.fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,password})});
     const d=await r.json();
     if(!r.ok)throw new Error(d.error||'เข้าสู่ระบบไม่สำเร็จ');
     sessionStorage.setItem('currentUser',JSON.stringify(d.user));
@@ -16,7 +16,7 @@ async function handleLogin(event){
   }catch(e){show('❌ '+e.message,true)}
 }
 async function logout(){
-  try{await fetch('/api/auth/logout',{method:'POST'})}catch{}
+  try{await BeeHouseAPI.fetch('/api/auth/logout',{method:'POST'})}catch{}
   sessionStorage.removeItem('currentUser');location.href='login.html';
 }
 window.handleLogin=handleLogin;window.logout=logout;

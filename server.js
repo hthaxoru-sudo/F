@@ -24,17 +24,40 @@ function seedJson(name,fallback){
 }
 
 app.use(helmet({contentSecurityPolicy:false}));
+
+// Optional cross-origin frontend support (e.g. GitHub Pages -> Node.js API).
+// Set FRONTEND_ORIGIN to the exact frontend origin, such as:
+// FRONTEND_ORIGIN=https://hthaxoru-sudo.github.io
+const frontendOrigin = String(process.env.FRONTEND_ORIGIN || "").trim().replace(/\/$/, "");
+if (frontendOrigin) {
+  app.use((req, res, next) => {
+    const origin = req.headers.origin;
+    if (origin === frontendOrigin) {
+      res.setHeader("Access-Control-Allow-Origin", origin);
+      res.setHeader("Vary", "Origin");
+      res.setHeader("Access-Control-Allow-Credentials", "true");
+      res.setHeader("Access-Control-Allow-Headers", "Content-Type, Accept");
+      res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+    }
+    if (req.method === "OPTIONS") return res.sendStatus(origin === frontendOrigin ? 204 : 403);
+    next();
+  });
+}
+
 app.use(express.json({limit:"2mb"}));
 app.use(express.urlencoded({extended:true}));
+if (frontendOrigin) app.set("trust proxy", 1);
+
 app.use(session({
   secret: process.env.SESSION_SECRET || "CHANGE_THIS_SESSION_SECRET",
   resave:false, saveUninitialized:false,
-  cookie:{httpOnly:true,sameSite:"lax",secure:process.env.NODE_ENV==="production",maxAge:8*60*60*1000}
+  cookie:{httpOnly:true,sameSite:frontendOrigin ? "none" : "lax",secure:frontendOrigin || process.env.NODE_ENV==="production",maxAge:8*60*60*1000}
 }));
-app.use(express.static(__dirname));
+app.use(express.static(__dirname, { extensions: ["html"] }));
 
 const read=(f,def=[])=>{try{return JSON.parse(fs.readFileSync(path.join(DATA,f),"utf8"))}catch{return def}};
 const write=(f,v)=>fs.writeFileSync(path.join(DATA,f),JSON.stringify(v,null,2),"utf8");
+const readRootSite=()=>{try{return JSON.parse(fs.readFileSync(path.join(__dirname,"site.json"),"utf8"))}catch{return {}}};
 const uid=()=>crypto.randomUUID();
 
 function seedUsers(){
@@ -75,7 +98,16 @@ app.post("/api/auth/login",(req,res)=>{
 app.post("/api/auth/logout",(req,res)=>{req.session.destroy(()=>res.json({ok:true}))});
 app.get("/api/auth/me",(req,res)=>res.json({user:req.session.user||null}));
 
-app.get("/api/site",(req,res)=>res.json(read("site.json",{})));
+app.get("/api/site",(req,res)=>{
+  res.set("Cache-Control","no-store, no-cache, must-revalidate, proxy-revalidate");
+  const current=read("site.json",{});
+  // If an old deployment created an empty data/site.json, transparently use
+  // the bundled site definition so the public site never renders blank.
+  const bundled=readRootSite();
+  const site=(current && Object.keys(current).length) ? current : bundled;
+  if (!Object.keys(current||{}).length && Object.keys(site||{}).length) write("site.json",site);
+  res.json(site||{});
+});
 app.get("/api/applications",(req,res)=>{
  const counts={}; for(const x of read("applications.json",[])){if(x.status!=="fail")counts[x.job]=(counts[x.job]||0)+1}
  res.json(Object.entries(counts).map(([job,count])=>({job,count})));
@@ -134,7 +166,7 @@ app.delete("/api/admin/users/:id",(req,res)=>{
   if(target.role==="super_admin" && users.filter(u=>u.role==="super_admin").length<=1)return res.status(400).json({error:"ไม่สามารถลบ Super Admin คนสุดท้าย"});
   write("users.json",users.filter(u=>u.id!==req.params.id));log(req,"ลบบัญชี "+target.username);res.json({ok:true});
 });
-app.put("/api/admin/site",(req,res)=>{const old=read("site.json",{}); const next={...old,...req.body}; write("site.json",next); log(req,"แก้ไขการตั้งค่าเว็บไซต์");res.json(next)});
+app.put("/api/admin/site",(req,res)=>{const old=read("site.json",{}); const next={...old,...req.body}; write("site.json",next); log(req,"แก้ไขการตั้งค่าเว็บไซต์");res.set("Cache-Control","no-store");res.json(next)});
 app.put("/api/admin/collection/:name",(req,res)=>{
  const allowed=["partners","products","portfolio","news","jobs","tabs","stats"]; if(!allowed.includes(req.params.name))return res.status(400).json({error:"collection ไม่ถูกต้อง"});
  const site=read("site.json",{}); site[req.params.name]=Array.isArray(req.body)?req.body:(req.body.items||[]); write("site.json",site); log(req,"แก้ไขข้อมูล "+req.params.name);res.json(site[req.params.name]);
@@ -147,5 +179,8 @@ app.delete("/api/admin/applications/:id",(req,res)=>{let a=read("applications.js
 app.get("/api/admin/contacts",(req,res)=>res.json(read("contacts.json",[])));
 app.put("/api/admin/contacts/:id",(req,res)=>{const c=read("contacts.json",[]);const i=c.findIndex(x=>x.id===req.params.id);if(i<0)return res.status(404).json({error:"ไม่พบรายการ"});c[i]={...c[i],...req.body};write("contacts.json",c);log(req,"อัปเดต Contact Inbox");res.json(c[i])});
 app.post("/api/admin/upload",upload.single("file"),(req,res)=>{if(!req.file)return res.status(400).json({error:"ไม่พบไฟล์"});log(req,"อัปโหลดไฟล์ "+req.file.originalname);res.json({url:"/uploads/"+req.file.filename,filename:req.file.originalname})});
+
+app.get("/api/health",(_req,res)=>res.json({ok:true,service:"BeeHouse Node.js",time:new Date().toISOString()}));
+app.use("/api",(_req,res)=>res.status(404).json({error:"API endpoint not found"}));
 
 app.listen(PORT,()=>console.log(`BeeHouse Dynamic Panel running: http://localhost:${PORT}`));

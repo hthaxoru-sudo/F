@@ -125,7 +125,7 @@ function contacts(a){const list=cms().getContacts();a.innerHTML=`<div class="car
 function deleteContact(id){cms().saveContacts(cms().getContacts().filter(x=>String(x.id)!==String(id)));cms().log('ลบข้อความติดต่อ');render()}
 
 async function accounts(a){
-  let users=[];try{users=await (await fetch('/api/admin/users')).json()}catch(e){}
+  let users=[];try{users=await (await BeeHouseAPI.fetch('/api/admin/users')).json()}catch(e){}
   a.innerHTML=`<div class="card"><div class="section-head"><div><h3>👥 บัญชีแพลตฟอร์ม</h3><p>สร้างบัญชีผู้สัมภาษณ์และทีมงานได้จาก Admin โดยตรง</p></div><button class="primary" onclick="showAccountForm()">＋ เพิ่มบัญชี</button></div>
   <div id="account-form"></div>
   <div class="account-list">${users.map(u=>`<div class="item"><div><b>${esc(u.name||u.username)}</b><div>${esc(u.username)} • <strong>${esc(u.role)}</strong> • ${u.enabled===false?'ปิดใช้งาน':'ใช้งาน'}</div></div><div><button class="small-btn" onclick='editAccount(${JSON.stringify(u).replace(/'/g,"&#39;")})'>แก้ไข</button> <button class="danger" onclick="deleteAccount('${esc(u.id)}')">ลบ</button></div></div>`).join('')||'<div class="empty">ยังไม่มีบัญชี</div>'}</div></div>`;
@@ -145,14 +145,14 @@ async function saveAccount(u={}){
  const body={username:val('username'),name:val('name'),password:val('password'),role:val('role'),avatar:val('avatar'),enabled:val('enabled')==='true'};
  try{
   const url=u.id?'/api/admin/users/'+encodeURIComponent(u.id):'/api/admin/users';
-  const r=await fetch(url,{method:u.id?'PUT':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const r=await BeeHouseAPI.fetch(url,{method:u.id?'PUT':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
   const d=await r.json();if(!r.ok)throw new Error(d.error||'บันทึกไม่สำเร็จ');
   toast('✓ บันทึกบัญชีแล้ว');go('accounts');
  }catch(e){toast('⚠️ '+e.message)}
 }
-async function deleteAccount(id){if(!confirm('ยืนยันลบบัญชีนี้?'))return;try{const r=await fetch('/api/admin/users/'+encodeURIComponent(id),{method:'DELETE'});const d=await r.json();if(!r.ok)throw new Error(d.error||'ลบไม่สำเร็จ');go('accounts')}catch(e){alert('⚠️ '+e.message)}}
+async function deleteAccount(id){if(!confirm('ยืนยันลบบัญชีนี้?'))return;try{const r=await BeeHouseAPI.fetch('/api/admin/users/'+encodeURIComponent(id),{method:'DELETE'});const d=await r.json();if(!r.ok)throw new Error(d.error||'ลบไม่สำเร็จ');go('accounts')}catch(e){alert('⚠️ '+e.message)}}
 
-function data(a){a.innerHTML=`<div class="card"><h3>💾 ข้อมูล / สำรอง</h3><div class="notice">GitHub Pages ไม่สามารถเขียนไฟล์ลง Repository จากหน้าเว็บได้ ดังนั้น CMS จะเก็บข้อมูลในเครื่องนี้ และมีเครื่องมือสำรองข้อมูลให้ครบ</div><div class="row"><button class="primary" onclick="exportBackup()">⬇ Export Backup ทั้งระบบ</button><button class="small-btn" onclick="exportSite()">⬇ Export site-default.js</button><button class="small-btn" onclick="importBackup()">⬆ Import Backup</button><button class="small-btn" onclick="importSite()">⬆ Import site-default.js</button><button class="danger" onclick="resetSite()">↺ คืนค่าเริ่มต้น</button></div></div>`}
+function data(a){a.innerHTML=`<div class="card"><h3>💾 ข้อมูล / สำรอง</h3><div class="notice">ระบบนี้ใช้ Node.js API เป็นศูนย์กลาง ข้อมูลที่บันทึกจะใช้ร่วมกันทุกเบราว์เซอร์และทุกเครื่องที่เข้า Server เดียวกัน ห้ามเปิดผ่าน GitHub Pages โดยตรง</div><div class="row"><button class="primary" onclick="exportBackup()">⬇ Export Backup ทั้งระบบ</button><button class="small-btn" onclick="exportSite()">⬇ Export site-default.js</button><button class="small-btn" onclick="importBackup()">⬆ Import Backup</button><button class="small-btn" onclick="importSite()">⬆ Import site-default.js</button><button class="danger" onclick="resetSite()">↺ คืนค่าเริ่มต้น</button></div></div>`}
 function exportBackup(){cms().exportAll()};function exportSite(){const b=new Blob(['window.BeeHouseDefaultSite='+JSON.stringify(site,null,2)+';'],{type:'application/javascript'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='site-default.js';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};function importBackup(){const i=document.createElement('input');i.type='file';i.accept='.json';i.onchange=()=>{const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(d.site)site=d.site;else site=d;cms().set(site);if(d.applications)cms().saveApps(d.applications);if(d.contacts)cms().saveContacts(d.contacts);cms().log('Import Backup');render();alert('นำเข้าข้อมูลสำเร็จ')}catch(e){alert('Backup ไม่ถูกต้อง: '+e.message)}};r.readAsText(i.files[0])};i.click()}
 function importSite(){const i=document.createElement('input');i.type='file';i.accept='.json';i.onchange=()=>{const r=new FileReader();r.onload=()=>{try{site=JSON.parse(r.result);cms().set(site);cms().log('Import site.json');render();alert('นำเข้า site.json สำเร็จ')}catch(e){alert('ไฟล์ไม่ถูกต้อง')}};r.readAsText(i.files[0])};i.click()}
 function resetSite(){if(confirm('คืนค่าข้อมูลเว็บไซต์ทั้งหมดเป็นค่าเริ่มต้น?')){site=cms().reset();cms().log('คืนค่าเว็บไซต์เริ่มต้น');render();}}

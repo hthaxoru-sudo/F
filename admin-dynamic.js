@@ -2,7 +2,7 @@
 (function(){
 "use strict";
 const A="/api/admin", esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
-async function api(url,opt={}){const r=await fetch(A+url,{headers:{"Content-Type":"application/json",...(opt.headers||{})},...opt});let d={};try{d=await r.json()}catch{}if(!r.ok)throw Error(d.error||"เกิดข้อผิดพลาด");return d}
+async function api(url,opt={}){const r=await BeeHouseAPI.fetch(A+url,{headers:{"Content-Type":"application/json",...(opt.headers||{})},...opt});let d={};try{d=await r.json()}catch{}if(!r.ok)throw Error(d.error||"เกิดข้อผิดพลาด");return d}
 let db=null, active="general";
 const collections=["partners","products","portfolio","news","jobs","tabs","stats"];
 const labels={partners:"พาร์ตเนอร์",products:"สินค้า / บริการ",portfolio:"ผลงาน / แกลเลอรี",news:"ข่าวสาร / ประกาศ",jobs:"สายพลัง / อาชีพ",tabs:"แท็บหน้าแรก",stats:"สถิติหน้าแรก"};
@@ -11,7 +11,7 @@ function inject(){
  if(!document.getElementById("dynamic-menu")){const b=document.createElement("button");b.id="dynamic-menu";b.className="menu-btn";b.textContent="⚙️ Dynamic Control Center";b.onclick=()=>show("general");nav.appendChild(b)}
  const main=document.querySelector(".main-content");if(!document.getElementById("dynamic-panel")){const sec=document.createElement("section");sec.id="dynamic-panel";sec.className="tab-panel";sec.innerHTML='<div id="dynamic-root"></div>';main.appendChild(sec)}
 }
-async function init(){try{const me=await (await fetch("/api/auth/me")).json();if(!me.user||me.user.role!=="super_admin")return;db=await api("/all");inject();show("general")}catch(e){console.error(e)}}
+async function init(){try{const me=await (await BeeHouseAPI.fetch("/api/auth/me")).json();if(!me.user||me.user.role!=="super_admin")return;db=await api("/all");inject();show("general")}catch(e){console.error(e)}}
 function show(type){
  active=type;document.querySelectorAll(".tab-panel").forEach(x=>x.classList.remove("active"));document.getElementById("dynamic-panel").classList.add("active");document.querySelectorAll(".menu-btn").forEach(x=>x.classList.remove("active"));document.getElementById("dynamic-menu").classList.add("active");
  const r=document.getElementById("dynamic-root");
@@ -49,7 +49,7 @@ async function saveGeneral(){
  const s=db.site,g={...s.general,siteTitle:$("#dg-title").value,slogan:$("#dg-slogan").value,logo:$("#dg-logo").value,favicon:$("#dg-favicon").value,footerCredits:$("#dg-footer").value,copyright:$("#dg-copy").value,serverStatus:$("#dg-server").value};
  const buttons={};Object.keys(s.buttons||{}).forEach(k=>buttons[k]={text:document.querySelector(`[data-b="${k}"]`).value,url:document.querySelector(`[data-u="${k}"]`).value,enabled:document.querySelector(`[data-e="${k}"]`).checked});
  const next={...s,general:g,buttons,hero:{...s.hero,title:$("#dg-hero-title").value,description:$("#dg-hero-desc").value},features:{...s.features,applicationsOpen:$("#dg-appopen").checked},theme:{...s.theme,primary:$("#dg-color").value}};
- db.site=await (await fetch("/api/admin/site",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(next)})).json();alert("✅ บันทึกแล้ว");
+ db.site=await (await BeeHouseAPI.fetch("/api/admin/site",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(next)})).json();alert("✅ บันทึกแล้ว");
 }
 function collection(r,name){
  if(name==="collections"){r.innerHTML=toolbar("📦 เลือกหมวดข้อมูล");document.querySelector("#dynamic-body").innerHTML=collections.map(k=>`<button class="btn-add" onclick="DynamicAdmin.show('${k}')">${labels[k]}</button>`).join("");return}
@@ -78,7 +78,7 @@ function contacts(r){r.innerHTML=toolbar("📨 Contact Inbox");document.querySel
 async function contact(id,status){await api("/contacts/"+id,{method:"PUT",body:JSON.stringify({status})});db.contacts=(db.contacts||[]).map(x=>x.id===id?{...x,status}:x);show("contacts")}
 function logs(r){r.innerHTML=toolbar("📜 Audit Logs");document.querySelector("#dynamic-body").innerHTML=`<div style="overflow:auto"><table class="log-table"><thead><tr><th>เวลา</th><th>ผู้ใช้</th><th>กิจกรรม</th><th>สถานะ</th></tr></thead><tbody>${(db.logs||[]).map(x=>`<tr><td>${esc(x.time)}</td><td>${esc(x.user)}</td><td>${esc(x.action)}</td><td>${esc(x.status)}</td></tr>`).join("")}</tbody></table></div>`}
 function upload(r){r.innerHTML=toolbar("🖼️ Media Upload");document.querySelector("#dynamic-body").innerHTML=`<p>อัปโหลดรูปหรือวิดีโอ แล้วนำ URL ไปใส่ใน Portfolio / Partner / News ได้ทันที</p><input type="file" id="media-file" accept="image/*,video/*"><button class="btn-save" onclick="DynamicAdmin.doUpload()">อัปโหลด</button><pre id="upload-result"></pre>`}
-async function doUpload(){const f=$("#media-file").files[0];if(!f)return alert("เลือกไฟล์ก่อน");const fd=new FormData();fd.append("file",f);const r=await fetch("/api/admin/upload",{method:"POST",body:fd});const d=await r.json();if(!r.ok)return alert(d.error);$("#upload-result").textContent=location.origin+d.url}
+async function doUpload(){const f=$("#media-file").files[0];if(!f)return alert("เลือกไฟล์ก่อน");const fd=new FormData();fd.append("file",f);const r=await BeeHouseAPI.fetch("/api/admin/upload",{method:"POST",body:fd});const d=await r.json();if(!r.ok)return alert(d.error);$("#upload-result").textContent=BeeHouseAPI.url(d.url)}
 window.DynamicAdmin={show,saveGeneral,edit,saveItem,del,applications,evaluate,saveEval,delApp,contact,doUpload};
 document.addEventListener("DOMContentLoaded",init);
 })();
